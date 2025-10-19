@@ -104,7 +104,9 @@ A hivatalos útmutató [második része](https://learn.microsoft.com/en-us/azure
 - Name: *acr* előtag + neptun kód (pl.*npt123* neptun kód esetén *acrnpt123*)
 - Resource group: az alapértelmezett Azure erőforráscsoport (lásd fentebb)
 - Location: közös Azure régió (lásd fentebb)
+- Domain name label scope: Unsecure
 - Pricing plan / SKU: Basic
+- Role assignment permission mode: RBAC Registry Permissions
 
 Azure CLI-vel (`az acr login`) [regisztráljuk is az ACR-t a docker környezetünkbe](https://learn.microsoft.com/en-us/cli/azure/acr?view=azure-cli-latest#az-acr-login) tárolóként.
 
@@ -118,17 +120,17 @@ A hivatalos útmutató [második része](https://learn.microsoft.com/en-us/azure
 1. Tag-eljük meg az alábbi három *aks-store-demo* lemezképet. Az $ACRNAME helyére helyettesítsük be az ACR-ünk nevét (*acr+neptun kód*).
 
     ```bash
-    docker tag aks-store-demo-product-service $ACRNAME.azurecr.io/azure-samples/aks-store-demo/product-service
-    docker tag aks-store-demo-store-front $ACRNAME.azurecr.io/azure-samples/aks-store-demo/store-front
-    docker tag aks-store-demo-order-service $ACRNAME.azurecr.io/azure-samples/aks-store-demo/order-service
+    docker tag aks-store-demo-product-service $ACRNAME.azurecr.io/aks-store-demo/product-service
+    docker tag aks-store-demo-store-front $ACRNAME.azurecr.io/aks-store-demo/store-front
+    docker tag aks-store-demo-order-service $ACRNAME.azurecr.io/aks-store-demo/order-service
     ```
 
 2. Töltsük fel a képeket.
 
     ```bash
-    docker push $ACRNAME.azurecr.io/azure-samples/aks-store-demo/store-front
-    docker push $ACRNAME.azurecr.io/azure-samples/aks-store-demo/order-service
-    docker push $ACRNAME.azurecr.io/azure-samples/aks-store-demo/product-service
+    docker push $ACRNAME.azurecr.io/aks-store-demo/store-front
+    docker push $ACRNAME.azurecr.io/aks-store-demo/order-service
+    docker push $ACRNAME.azurecr.io/aks-store-demo/product-service
     ```
    
 !!! tip "ACR által használt tárhely"
@@ -154,7 +156,7 @@ A *Node Pool* fülön kell méreteznünk a klasztert. Ez hallgatói előfizetés
 !!! danger "User node pool"
     Semmiképp ne adjunk a klaszterhez **user** node poolt, mert akkor a skálázásra végképp nem marad kvótánk. Csak a system node poolba vegyünk olcsóbb, max. 2 magos virtuális gépeket.
 
-A system node pool méretezésekor érdemes a *Choose a size* opció által feldobott felületen a pontosan 2 magos (lehet rá szűrni), *D* betűvel kezdődő kódú kiméretek közül próbálkozni (D2s_v3, D2as_v4, DS2_v2). A felület mutatja a havi költséget is (*Cost/month*), a 60-90 EUR/VM költség már jónak számít.
+A system node pool méretezésekor érdemes a *Choose a size* opció által feldobott felületen a pontosan 2 magos (lehet rá szűrni), *D* betűvel kezdődő kódú kiméretek közül próbálkozni (D2s_v3, D2as_v4, DS2_v2, F2s_v2). A felület mutatja a havi költséget is (*Cost/month*), a 60-90 EUR/VM költség már jónak számít.
 
 !!! warning "System node pool szabályok"
     A kiválasztott kiméretnek még az AKS [system node pool-ra vonatkozó minimum feltételeknek](https://learn.microsoft.com/en-us/azure/aks/use-system-pools?tabs=azure-cli#system-and-user-node-pools) is meg kell felelni. B sorozatú kiméretek például nem használhatók.
