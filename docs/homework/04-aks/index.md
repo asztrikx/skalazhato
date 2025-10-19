@@ -20,6 +20,7 @@ A laborleírás cross-platform eszközöket használ. A labor linuxon (kubuntu) 
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) v2.61 vagy újabb
 - Azure [kubelogin és kubectl](https://azure.github.io/kubelogin/install.html)
     - az `az aks install-cli` felülírhatja a korábban telepített `kubectl` binárist
+- Docker Hub eléréshez Docker Hub fiók és [Personal Access Token](https://docs.docker.com/security/access-tokens/#create-a-personal-access-token)
 
 
 ## Előkészület
@@ -136,6 +137,26 @@ A hivatalos útmutató [második része](https://learn.microsoft.com/en-us/azure
 !!! tip "ACR által használt tárhely"
     Az ACR Azure portálos oldalán belül a *Metrics* menüpontban a *Storage used* nevű [metrikát](https://learn.microsoft.com/en-us/azure/container-registry/monitor-container-registry-reference#supported-metrics-for-microsoftcontainerregistryregistries) kiválasztva ellenőrizhetjük az ACR által használt tárhelyet, illetve annak időbeli változását. Másik lehetőség az *Overview* menüponton belül a *Monitoring* alfül.
 
+
+Az útmutató nem tér ki rá, de a teljesség kedvéért foglalkozzunk még egy lemezképpel. AKS-be az [aks-store-quickstatrt.yaml-t] https://github.com/Azure-Samples/aks-store-demo/blob/main/aks-store-quickstart.yaml foggjuk majd telepíteni, ami a fentieken túl a [busybox](https://hub.docker.com/_/busybox) lemezképet is használja a Docker Hub-ról. Bár technikailag az AKS be tudja szerezni ezt a lemezképet a Docker Hub-ról, ezt is tegyük elérhetővé a saját ACR-ünkben.
+
+!!! tip "Kitekintés - külső források"
+    Nagyvállalati környezetben a külső források elérése gyakran tiltott (pl. tűzfalszabályokkal), ezen források biztonsági és egyéb szempontok miatt  alapértelmezetten megbízhatatlannak számítanak. A docker alapértelmezett forrása, a Docker Hub például  korlátozásokat (rate limiting) [vezetett be](https://medium.com/@alaa.barqawi/docker-rate-limit-with-azure-container-instance-and-aks-4449cede66dd) az AKS-es letöltésekre is. Mindezek miatt a nagyvállalti klaszterek csak belső céges repository-kat használhatnak, amiket egy dedikált csapat kezel: megfelelő ellenőrzés után emelnek be külső vagy belső fejlesztésű elemeket (artifaktokat). Emiatt fontos, hogy minden telepítési egység (pl. helm chart) paraméterezhető legyen a függőségeinek elérhetősége kapcsán.
+
+3. Az ACR képes átmemelni külső forrásból lemezképeket, ha hálózatilag eléri és a külső forrás hozzáférésszabályozásán is át tud jutni. A Docker Hub esetében ez nem túl bonyolult, csak egyetlen Azure CLI parancs ([az acr import](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-import-images?tabs=azure-cli#import-from-docker-hub)). Felhasználónévként a Docker Hub felhasználónevünket adjuk meg, jelszóként pedig a felhasználónkhoz tartozó egyik Personal Access Token-ünket.
+
+    ```bash
+    az acr import \
+      --name $ACRNAME \
+      --source docker.io/library/busybox:latest \
+      --image busybox:latest \
+      --force \
+      --username $DOCKERHUB_USER \
+      --password "$DOCKERHUB_TOKEN"
+    ```
+
+4. Ellenőrizzük a feltöltött lemezképeket az Azure Portálon, az ACR [Repositories menüpontjában](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal?tabs=azure-cli#list-container-images).
+
 ### AKS létrehozása, méretezése
 
 Azure-ban minden erőforrás létrehozás, kezelés, stb. REST API-k segítségével történik, ezeket az API-kat ún. *resource provider*-ek ajánlják ki. Egy adott szolgáltatásnak általában saját resource providere van, de nem mindegyik van alapból bekapcsolva egy adott előfizetésen. Előfizetés tulajdonosként ezzel általában nem kell foglalkoznunk, egy szolgáltatás létrehozásakor a kapcsolódó resource provider automatikusan bekapcsolódik. Néhány esetben mégis szükség lehet arra, hogy kézzel kapcsoljunk be (regisztráljunk) provider-eket. Ilyen eset lehet, ha AKS létrehozás **előtt** a portál vCPU kvótákat ellenőriz - mint mindenhez, ehhez is API-t kell hívni. Ezért az AKS létrehozása előtt [ezen útmutató](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider-1) alapján ellenőrizzük, hogy a *Microsoft.Compute* provider regisztrálva van-e. Ha nincs, regisztráljuk.
@@ -164,7 +185,7 @@ A system node pool méretezésekor érdemes a *Choose a size* opció által feld
 A VM kiméret választás után a *Node Pool* fülre visszatérve az Azure ellenőrzi a legtöbb szabályt. Ha nem látunk hibaüzenetet, akkor jó esélyeink vannak.
 
 <figure markdown="span">
-  ![quotaerror.png](images/quotaerror.png)
+  ![Kvótahiba](images/quotaerror.png)
   <figcaption>Nincs meg ehhez a jóárasított VM kimérethez a szükséges kvótánk</figcaption>
 </figure>
 
@@ -183,9 +204,11 @@ A többi fülön hagyjuk meg az alapértelmezett értékeket.
 
 4. Kukkantsuk meg a klasztert alkotó Azure infrastruktúraszolgáltatásokat: a *Properties* menüpontban az *Infrastructure resource group* linkre kattintva átugorhatunk az ezen szolgáltatásokat összefogó erőforráscsoportba.
 
+Az útmutató negyedik része az AKS-specifikus tárhely konfigurációval foglalkozik, de erre most nincs szükségünk, így kihagyjuk.
+
 ### Mintaalkalmazás telepítése
 
-A hivatalos útmutató [negyedik része](https://learn.microsoft.com/en-us/azure/aks/tutorial-kubernetes-deploy-application?tabs=azure-cli) alapján telepítsük a mintaalkalmazást. Az ACR login szerver és a K8S service külső IP címe is megszerezhető az Azure portálról. Az útmutató rész végére érve **ne** töröljük a telepítést.
+A hivatalos útmutató [ötödik része](https://learn.microsoft.com/en-us/azure/aks/tutorial-kubernetes-deploy-application?tabs=azure-cli) alapján telepítsük a mintaalkalmazást. Az ACR login szerver és a K8S service külső IP címe is megszerezhető az Azure portálról. Az útmutató rész végére érve **ne** töröljük a telepítést.
 
 !!! warning "K8S erőforráskorlátok"
     A mintaalkalmazás korábbi verziójában némely konténer [erőforráslimitje](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) nagyon alacsony volt (pl. 10 MB memória), amit igen könnyű volt átlépni és ilyenkor az ütemező folyamatosan ki-kilőtte a podot (hibaüzenet valami hasonló volt: *container init was OOM-killed (memory limit too low?)*), a ráépülő szolgáltatás nem tudott rendben működni. Az aktuális verzióban ezt már [javították](https://github.com/Azure-Samples/aks-store-demo/commit/afe11f4ca94a154f43c3b72187b8684c048e608b#diff-46a7464f533643281cbe9a01070701f8acfc30f993f74ece069958ef3e3c4767R191) a *product-service* konténer esetében. Ha hasonló hibajelenséget észleltek, akár a helyi K8S-ben, akár AKS-ben, nyugodtan állítsátok a hibát jelző konténer limitjét a YAML-ben.
@@ -199,125 +222,94 @@ A hivatalos útmutató [negyedik része](https://learn.microsoft.com/en-us/azure
 
 ## 2. Feladat
 
-A k8s házi *todoapp*-ját is telepítsük ugyanebbe az AKS-be, egy külön [kubernetes névtérbe](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/).
+Az _AKS store demo_ teljesebb változatát - hasonlót ahhoz, ami a K8S háziban is szerpelt, telepítsük ugyanebbe az AKS-be, egy külön [kubernetes névtérbe](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/).
 
 ### 2.1 Névtér létrehozása
 
 Ez egyszerű:
 
 ```bash
-kubectl create namespace todoapp
+kubectl create namespace fullstore
 ```
 
-### 2.2 Traefik - telepítés külső helm chart forrásból
+### 2.2 Extra lemezképek
 
-Itt most kiengedjük a traefik-et a publikus internetre, LoadBalancer objektumot hozunk létre NodePort helyett, de mivel ez az [alapbeállítás](https://github.com/traefik/traefik-helm-chart/blob/b8725498c2445da8ecc06f156ca69ddc1a56cce4/traefik/values.yaml#L728), így nem kell szinte semmi ilyesmit állítgatni. Csak az IngressRoute-ot kell [létrehozatni](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#access-traefik-dashboard-without-exposing-it).
+A teljesebb változatot az [aks-store-all-in-one.yaml](https://github.com/Azure-Samples/aks-store-demo/blob/main/aks-store-all-in-one.yaml) alapján tervezzük telepíteni. Ez hivatkozik pár extra lemezképre, melyek egy részét meg kell építenünk. Erre egyik lehetőség a [nagyobbik Docker Compose file használata](https://github.com/Azure-Samples/aks-store-demo/blob/main/docker-compose.yml), például a `docker compose -f docker-compose.yml build` paranccsal (csak építeni akarunk, nem futtatni).
 
-```bash
- helm install traefik traefik/traefik --namespace todoapp --set ingressRoute.dashboard.enabled=true
-```
+Ezekre az épített lemezképekre lesz szükségünk, töltsük föl őket ACR-be:
 
-Ezután már lehet port-átirányítani.
+- store-front
+- order-service
+- product-service
+- makeline-service
+- store-admin
 
-```bash
-kubectl port-forward $(kubectl get pods -n todoapp -l "app.kubernetes.io/name=traefik" -o jsonpath="{.items[0].metadata.name}") 8080:8080 -n todoapp
-```
+A külső lemezképek közül pedig ezek - importáljuk ezeket ACR-be:
+- busybox - ez már megvan korábbról
+- mongo 7.0 a Docker Hub-ról (docker.io/library/mongo:7.0)
+- rabbitmq-server 3.13 (mcr.microsoft.com/azurelinux/base/rabbitmq-server:3.13)
 
-Ezután a http://localhost:8080/dashboard/ címen érhető el a traefik dashboard (amíg a `port-forward` parancs fut).
+### 2.3 MongoDB 7.0
 
-!!!warning "Alapértelmezett port változása"
-    A korábbi helm chart verziókban (v33 előtt) az alapértelmezett port 9000 volt. A lokálisan gyorsítótárazott verzió lekérdezése: `helm search repo traefik/traefik` (*CHART VERSION* oszlop). Ha ez még v33 előtti és frissítenénk az új verzióra, akkor `helm repo update`. 
-
-### 2.3 Adatbázisok - telepítés k8s YAML fájlokkal
-
-Próbáljuk ki egy-az-egyben a k8s házi módszerét. Töltsük le valahová az adatbázisok [k8s YAML fájljait tartalmazó mappát](https://github.com/bmeviaumb11/skalazhato-szoftverek-bmeviaumb11-2024-hf-2024-kubernetes-hf-kiindulo-kubernetes-1/tree/main/todoapp/kubernetes/db) (vagy navigáljunk a k8s házink könyvtárába). A `db` mappa szülőkönyvtárban állva:
-
-```bash
-kubectl apply -f db -n todoapp
-```
-
-Meglepő lehet, de ez szinte teljesen jól működik: nincs megadva storage class, így az AKS alapértelmezett storage class-a érvényesül, ami standard SSD lemezeket hoz létre, és ezek csatolódnak fel. Ezen lemezek élettartama az AKS élettartamához kötött (de nem a K8S objektumok élettartamához!), így az AKS törlésével ezek is törlődnek. 
-
-!!! tip "AKS/K8S storage class-ok"
-    Így kérdezhetjük le őket: `kubectl get sc`. Az alapértelmezett storage class tulajdonságai: `kubectl describe sc default`. Látható, hogy a létrehozó (provisioner) `disk.csi.azure.com`, aminek paraméterként a `skuname=StandardSSD_LRS` beállítást kapja meg, tehát nem meglepő, hogy [Azure Disk Standard SSD](https://learn.microsoft.com/en-us/azure/virtual-machines/disks-types#disk-type-comparison) jön létre.
-
-!!! tip "Diszkek, mint Azure erőforrások"
-    A lemezeket, mint Azure erőforrás is megfigyelhetjük, ha újra rákukkantunk az infrastruktúraszolgáltatásos erőforráscsoportra: két új 2 GiB méretű Standard SSD diszk is létrejött. Mivel a provisioner (az AKS platform) kezeli ezeket a lemezeket, ezért logikus, hogy ide kerülnek.
-
-Pár perc elteltével, ha ránézünk pod listára (megfelelő `kubectl` paranccsal vagy [Azure portal Workloads menüpontban](https://learn.microsoft.com/en-us/azure/aks/kubernetes-portal?tabs=azure-cli#view-kubernetes-resources)) láthatjuk, hogy gond van az elasticsearch poddal, folyamatosan újraindul.
-
-Kérdezzük le a pod logját: ezt is megtehetjük `kubectl` paranccsal vagy [Azure portálon](https://learn.microsoft.com/en-us/azure/azure-monitor/containers/container-insights-livedata-overview#view-aks-resource-live-logs). Az elasticsearch folyamat nem tud dolgozni a csatolt köteten (volume) jogosultsági gondok miatt. Az elasticsearch folyamat saját [*elasticsearch* linux felhasználó nevében fut](https://github.com/elastic/elasticsearch/blob/v7.17.17/distribution/docker/src/docker/Dockerfile#L164), az AKS viszont nem tud erről a felhasználóról, így a kötethez alapértelmezetten nem lesz joga. Oldjuk meg a problémát egy új init konténerrel, vegyünk fel egy újat a meglévők mellé a *elasticsearch-statefulset.yaml*-be, ami root felhasználó nevében futva a kötet tulajdonosává teszi az *elasticsearch* felhasználót (uid:1000, gid:1000).
+Módosítsuk a [aks-store-all-in-one.yaml-t](https://github.com/Azure-Samples/aks-store-demo/blob/main/aks-store-all-in-one.yaml), hogy a 7-es verziós lemezképet használja, adjunk neki kicsivel több erőforrást, illetve a _livenessProbe_-ot is finomítsuk, hogy ha lomhább is az adatbázis, akkor se álljon le a pod. Példa:
 
 ```yaml
-- name: init-permissions
-  image: alpine
-  command: [ "sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data" ]
-  volumeMounts:
-  - name: elasticsearch-data
-    mountPath: /usr/share/elasticsearch/data      
+containers:
+  - name: mongodb
+    image: mongo:7.0
+    ports:
+      - containerPort: 27017
+        name: mongodb
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 2Gi
+    livenessProbe:
+      exec:
+        command:
+          - mongosh
+          - --eval
+          - db.runCommand('ping').ok
+      initialDelaySeconds: 30
+      periodSeconds: 20
+      timeoutSeconds: 10
+      failureThreshold: 6
+      successThreshold: 1
 ```
 
-Mehet egy újabb próba a korábbi `kubectl apply` paranccsal. Egyértelműbb a változtatás alkalmazása, ha ki is töröljük az elasticsearch pod-ot. Ezt is megtehetjük Azure portálról és `kubectl` paranccsal is. Ezután már nem szabad folyamatos újraindulást tapasztalunk a podok között.
+### 2.4 Lemezképek hivatkozása
 
-!!! tip "ECK"
-    Elasticsearch telepítésére egy modernebb módszer az *Elastic Cloud on Kubernetes* disztribúció, például [helm chartként](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-install-helm.html).
+1. Nézzük át a YAML fájlt, az `image:` sorokat írjuk át, hogy mindenhol a saját ACR-ünkre hivatkozzon- hasonlóan az 1-es feladathoz. Figyeljünk rá, hogy az ACR-en belüli elérési útvonal is megfelelő legyen. Az ACR Azure portálos felületén meg tudjuk nézni az egyes lemezképek teljes nevét (_Artifact reference_ vagy _Docker pull command_), ha kiválasztunk egy lemezkép verziót. A legbiztosabb, ha innen másoljuk ki.
 
-### 2.4 Saját mikroszolgáltatások - telepítés nem annyira külső helm chart forrásból
+![Lemezkép elérési út](images/quotaerror.png)
 
-A tárgy [közös ACR-jába](https://portal.azure.com/#@m365.bme.hu/resource/subscriptions/b83ae5ef-4ef6-4ccb-bb4b-e9f187873feb/resourceGroups/infra/providers/Microsoft.ContainerRegistry/registries/viaumb11acr/overview) felkerültek a k8s házi mikroszolgáltatásai helm chartként, illetve a hivatkozott konténerek is. Elvileg minden Teams csapattag kapott ehhez hozzáférést, letöltéshez [`AcrPull` jogot](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-roles?tabs=azure-cli).
+2. Töröljük a `virtual-customer` és `virtual-worker` deployment-eket a leíróból.
 
-!!! tip "Saját jog ellenőrzése"
-    Ellenőrizheted a hozzáférésed ehhez vagy bármilyen más Azure erőforráshoz az [Azure portálon](https://learn.microsoft.com/en-us/azure/role-based-access-control/check-access#step-3-check-your-access).
+### 2.5 Ingress
 
-Megfelelő jogok birtokában közvetlenül, saját gép érintése nélkül [másolhatunk](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-import-images?tabs=azure-cli#import-from-a-registry-in-a-different-subscription) lemezképeket, helm chartokat ACR-ek között. Az alábbi példa alapján másold át a 3 szükséges lemezképet (*todos*, *users*, *web*; mindegyikből a v2 tag). A helm chartot nem szükséges másolni: azt a fejlesztői gépünknek kell elérni, a lemezképeket viszont az AKS-nek, ami csak a saját ACR-ünket látja csak, a közös tárgy ACR-t nem.
+A YAML leíró ClusterIP és LoadBalancer service típusokat használ, ez utóbbi azt okozza, hogy egy publikus IP címen lesz kívülről is [elérhető](https://learn.microsoft.com/en-us/azure/aks/load-balancer-standard#use-the-public-standard-load-balancer) az adott szolgáltatás. Mivel minden szolgáltatás külön IP-t kap, így nagyon gyorsan kifuthatunk a (régiónkénti) [publikus IP cím kvótánkból](https://learn.microsoft.com/en-us/azure/quotas/networking-quota-requests).
+
+A korábban megismert _ingress_ lehet egy jó megoldás - de milyen implementációt használjunk? A korábbi háziban már szerepelt a Traefik, ezt telepíthetnénk helm-ből, de az Azure kínál egy kulcsrakészebb megoldást is: az AKS szolgáltatás kezel helyettünk egy NGINX implementációt, nekünk csak be kell kapcsolni.
+
+
+### 2.6 Telepítés
+
+Mivel a YAML fájl nem hivatkozik K8S névtérre, ezért azt az `apply` parancsban be tudjuk állítani, így minden erőforrás a megadott névtérbe kerül.
 
 ```bash
-az acr import --name $ACRNAME --source todos:v2 --registry /subscriptions/b83ae5ef-4ef6-4ccb-bb4b-e9f187873feb/resourceGroups/infra/providers/Microsoft.ContainerRegistry/registries/viaumb11acr
+kubectl apply -f aks-store-all-in-one.yaml -n fullstore
 ```
 
-!!! tip "ACR repo felfedezése"
-    Az elérhető lemezképeket, helm chartokat is felfedezheted [a portálon](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-repositories).
 
-!!! tip "Alternatíva - helm publikálás ACR-be"
-    A saját k8s házid megoldásának mikroszolgáltatásait is publikálhatod a saját ACR-edbe. Ehhez a `IMAGE_TAG="v2" REGISTRY_URL="$ACRNAME.azurecr.io"  docker compose build --push` parancsot használhatod.
-
-Csatlakoztassuk a központi ACR-t helm repo-ként. Az alábbi egy *bash*-specifikus példa:
-
-```bash title="bash"
-az acr login --name viaumb11acr --expose-token --output tsv --query accessToken | \
-  helm registry login viaumb11acr.azurecr.io --username "00000000-0000-0000-0000-000000000000" --password-stdin
-```
-
-Kérdezzük le a helm chart beállításait.
-
-```bash
-helm show values oci://viaumb11acr.azurecr.io/helm/todoapp
-```
-
-A k8s házihoz képest új beállítás került be, az **image.registry**, amivel a lemezképek registry azonosítóit állíthatjuk. Ezt kell a saját ACR-ünkre állítani, amit az AKS-ünk elér. A tag beállítások már korábban megvoltak, azoknak egyezniük kell az átmásolt képek tagjeivel.
-
-```bash
-helm install todoapp oci://viaumb11acr.azurecr.io/helm/todoapp --version 0.1.0 --namespace todoapp --set image.registry=$ACRNAME.azurecr.io --set todos.tag=v2 --set web.tag=v2 --set users.tag=v2
-```
-
-!!! tip "Lemezkép letöltés ellenpróba"
-    Opcionálisan próbáld ki, mi történik, ha a registry-t nem állítod be. Telepített verzió leszedése: `helm uninstall todoapp --namespace todoapp`.
-
-Jöhet a fő próba: az Azure portálról vagy parancssorból (`kubectl`) szerezzük meg a traefik service külső IP-jét és nyissuk meg böngészőből (https helyett sima http-n). Vegyünk fel pár feladatot.
-
-!!! tip "Kitekintés - külső források"
-    Nagyvállalati környezetben a külső források elérése gyakran tiltott (pl. tűzfalszabályokkal), ezen források biztonsági és egyéb szempontok miatt  alapértelmezetten megbízhatatlannak számítanak. A docker alapértelmezett forrása, a Docker Hub például  korlátozásokat (rate limiting) [vezetett be](https://medium.com/@alaa.barqawi/docker-rate-limit-with-azure-container-instance-and-aks-4449cede66dd) az AKS-es letöltésekre is. Mindezek miatt a nagyvállalti klaszterek csak belső céges repository-kat használhatnak, amiket egy dedikált csapat kezel: megfelelő ellenőrzés után emelnek be külső vagy belső fejlesztésű elemeket (artifaktokat). Emiatt fontos, hogy minden telepítési egység (pl. helm chart) paraméterezhető legyen a függőségeinek elérhetősége kapcsán.
 
 
 !!! example "BEADANDÓ"
-    Készíts egy képernyőképet (`f2.1.png`) és commitold azt be a házi feladat repó gyökerébe, ahol az alkalmazás futása látszik egy saját neptun kódot tartalmazó todoval. Látszódjon a weboldal címe is.
-
-    Készíts egy másik képernyőképet (`f2.2.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol az Azure portálon látszik az AKS infrastruktúra erőforráscsoportjának (MC_ kezdetű) áttekintő nézete (*Overview*). Látszódjon a portálra belépett felhasználó azonosítója a jobb felső sarokban.
-    
-    Készíts egy másik képernyőképet (`f2.3.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol a végállapotban látszik parancssorban mindkét alkalmazás k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -o wide` és `kubectl get deployment -n todoapp -o wide`)
-
+    Készíts egy képernyőképet (`f2.1.png`) és commitold azt be a házi feladat repó gyökerébe, ahol 
 
 ## 3. Feladat - talán a legfontosabb
 
 !!! danger "AKS törlése"
-    Beadás után, ha egyből folytatod a következő házival, akkor hagyd meg, egyébként töröld az AKS-t. Ajánlott egyből folytatni, különben újra létre kell majd hoznod, és fel kell töltened az AKS-t.
+    Beadás után, ha egyből folytatod a következő házival, akkor hagyd meg, egyébként állítsd le az AKS-t.
