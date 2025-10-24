@@ -229,7 +229,7 @@ Az _AKS store demo_ teljesebb változatát - hasonlót ahhoz, ami a K8S háziban
 Ez egyszerű:
 
 ```bash
-kubectl create namespace fullstore
+kubectl create namespace fullstore-neptun
 ```
 
 ### 2.2 Extra lemezképek
@@ -244,7 +244,8 @@ Ezekre az épített lemezképekre lesz szükségünk, töltsük föl őket ACR-b
 - makeline-service
 - store-admin
 
-A külső lemezképek közül pedig ezek - importáljuk ezeket ACR-be:
+A külső lemezképek közül pedig ezekre - importáljuk ezeket ACR-be:
+
 - busybox - ez már megvan korábbról
 - mongo 7.0 a Docker Hub-ról (docker.io/library/mongo:7.0)
 - rabbitmq-server 3.13 (mcr.microsoft.com/azurelinux/base/rabbitmq-server:3.13)
@@ -288,22 +289,99 @@ containers:
 
 2. Töröljük a `virtual-customer` és `virtual-worker` deployment-eket a leíróból.
 
-### 2.5 Ingress
+### 2.5 Traefik
 
 A YAML leíró ClusterIP és LoadBalancer service típusokat használ, ez utóbbi azt okozza, hogy egy publikus IP címen lesz kívülről is [elérhető](https://learn.microsoft.com/en-us/azure/aks/load-balancer-standard#use-the-public-standard-load-balancer) az adott szolgáltatás. Mivel minden szolgáltatás külön IP-t kap, így nagyon gyorsan kifuthatunk a (régiónkénti) [publikus IP cím kvótánkból](https://learn.microsoft.com/en-us/azure/quotas/networking-quota-requests).
 
-A korábban megismert _ingress_ lehet egy jó megoldás - de milyen implementációt használjunk? A korábbi háziban már szerepelt a Traefik, ezt telepíthetnénk helm-ből, de az Azure kínál egy kulcsrakészebb megoldást is: az AKS szolgáltatás kezel helyettünk egy NGINX implementációt, nekünk csak be kell kapcsolni.
+Jobb lenne egy korábban már látott Traefik proxy jellegű megoldás, ahol egy proxy / ingress kontroller lenne az egyetlen kívülről elérhető belépési pont és a proxy valamilyen címzési módszerrel (routing) különítené el a különböző webalkalmazásokat. Tipikus címzési módszerek, amik az URL különböző részei alapján irányítják a kérést:
 
+- az URL _path_ része alapján
+- az URL _hostname_ része alapján
+- az URL _port_ része alapján
 
-### 2.6 Telepítés
+A K8S háziban egy _path_ alapú megoldást valósítottunk meg, de ehhez előre [fel kellett készíteni](https://vite.dev/guide/build.html#public-base-path) a webalkalmazások kódját (a kiinduló projekt már fel volt készítve). A _hostname_ alapú általában transzparensebb a webalkalmazások szempontjából, egy előre konténerizált webalkalmazást lényegében bármilyen hosztnév alatt elérhetővé tehetünk. Publikus elérés esetén ehhez publikus DNS-be való bejegyzés szükséges. Bár elérhetők ingyenes publikus DNS-be bejegyző hosztnév szolgáltatások, az extra adminisztráció miatt nem ezt a módszert választjuk. A port alapú megoldás nem annyira szép, mint a domain alapú, de esetünkben ez lesz a legmegfelelőbb: nem kell a webalkalmazások kódját módosítani, és a DNS-sel sem kell foglalkozni.
 
-Mivel a YAML fájl nem hivatkozik K8S névtérre, ezért azt az `apply` parancsban be tudjuk állítani, így minden erőforrás a megadott névtérbe kerül.
+A Traefik proxy támogatja a port alapú routing-ot is, ezért ismét Traefik-et használunk, csak egy kicsit másként. Telepítsük a Traefik-et is az ACR-ünkből. Cél, hogy a store-front a 80-as, a store-admin a 8090-es porton legyen elérhető, illetve mindkettő ugyanazon az AKS load balancer publikus IP címen.
+
+1. Importáljuk a Traefik-et az ACR-be
 
 ```bash
-kubectl apply -f aks-store-all-in-one.yaml -n fullstore
+az acr import --name $ACRNAME --source ghcr.io/traefik/helm/traefik:37.2.0 --image helm/traefik:37.2.0
 ```
 
+2. A [telepítési beállításokat](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md) most egy fájlból adjuk meg. Készíts egy új fájlt a repo-ba traefik-values.yaml néven, az alábbi tartalommal:
 
+```yaml
+ports:
+  # Additional HTTP entry point on 8090 (for other web apps)
+  web8090:
+    port: 8090
+    expose:
+      default: true
+    exposedPort: 8090
+    protocol: TCP
+
+ingressRoute:
+  dashboard:
+    enabled: true
+```
+
+Ez egyrészt egy új portot definiál, ahol a Traefik-et meg lehet szólítani (a hagyományos 80-as és 443-as port mellett), másrészt elérhetővé tesszük a Traefik dashboard-ot - [legalábbis kubectl port-forward-on keresztüli elérésre](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#access-traefik-dashboard-without-exposing-it). Ellenőrizzük, hogy megjelent-e a _traefik_ nevű K8S service és rajta a 8090-es port is.
+
+3. Telepítsük a Traefik-et ACR-ből. Ehhez előbb a helm-nek azonosítania kell magát az ACR felé. Ez szerencsére nem gond, ha van [Azure CLI-nk](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-helm-repos#authenticate-with-the-registry).
+
+```bash
+az acr login --name $ACRNAME --expose-token --output tsv --query accessToken | helm registry login $ACRNAME.azurecr.io --username "00000000-0000-0000-0000-000000000000" --password-stdin
+helm install traefik oci://$ACRNAME.azurecr.io/helm/traefik --version 37.2.0 --namespace fullstore-neptun -f traefik-values.yaml
+```
+
+!!! warning "kubectl context"
+    A helm a telepítési célként a kubectl aktív kontextjét használja. Ügyeljünk arra, hogy az AKS legyen az aktív kontext.
+
+
+### 2.6 Ingress
+
+Bár a K8S ingress API hagyományosan a sztenderd HTTP portokon folyó kommunikációra lett kitalálva így [nem is fogalalkozik nem port/protokoll konfigurációval](https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress). A Traefik külön annotációkat [definiál](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/), amiket az Ingress objektummokra rakhatunk, így mégis megadhatjuk, hogy milyen portot használja. 
+
+!!! info "alternatív routing konfiguráció"
+    Bár ez egyszerű esetben nem egy rossz megoldás, de kissé suta. Szerencsére nem csak K8S Ingress objektumot használhatunk a routing konfigurációjára, hanem pélául a Traefik saját alternatív [IngressRoute](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/) típusát, ami sokkal egyértelműbben tárja elénk a Traefik routing lehetőségeit. Másik alternatíva a K8S Ingress utódjának szánt, jóval többet tudó Gateway API
+
+1. Állítsuk az aks-store-all-in-one.yaml-ben minden K8S service típusát `ClusterIP`-re. Csak a Traefik szolgáltatás lesz kívülről elérhető (LoadBalancer típus), de az nem ebben a YAML-ben van definiálva, hanem a Traefik helm chart kezeli.
+
+2. Adjunk 1-1 K8S Ingress leírót a YAML fájlhoz a `store-front` és `store-admin` service-ekhez kapcsolva. Példaként itt a `web8090` portról a `store-admin` _service_ felé route-oló Ingress:
+
+```yaml
+# Ingress to expose store-admin via Traefik entryPoint `web8090` (HTTP 8090)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: store-admin-ingress
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    traefik.ingress.kubernetes.io/router.entrypoints: "web8090"
+spec:
+  ingressClassName: traefik
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: store-admin
+                port:
+                  number: 80
+```
+
+A másik _Ingress_ esetében a 80-as portot, azaz a ˙web˙ nevű [entrypointot](https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/) és a store-front _Service_-t kössük össze.
+
+3. Telepítsünk, alkalmazzuk a YAML leírót. Mivel a leíró nem hivatkozik K8S névtérre, ezért azt az `apply` parancsban be tudjuk állítani, így minden erőforrás a megadott névtérbe kerül.
+
+```bash
+kubectl apply -f aks-store-all-in-one.yaml -n fullstore-neptun
+```
+
+4. Ellenőrizzük az Azure portálon vagy `kubectl` parancsokkal, hogy minden K8S objektum rendben elindult-e. Szerezzük be a Traefik _LoadBalancer_ típusú _Service_ publikus IP címét. Ellenőrizzük, hogy a weboldalak a tervezett portokon elérhetőek-e.
 
 
 !!! example "BEADANDÓ"
@@ -311,5 +389,5 @@ kubectl apply -f aks-store-all-in-one.yaml -n fullstore
 
 ## 3. Feladat - talán a legfontosabb
 
-!!! danger "AKS törlése"
+!!! danger "AKS kikapcsolása"
     Beadás után, ha egyből folytatod a következő házival, akkor hagyd meg, egyébként állítsd le az AKS-t.
