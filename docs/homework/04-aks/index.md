@@ -405,4 +405,4 @@ Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunik�
 ## 3. Feladat - talán a legfontosabb
 
 !!! danger "AKS kikapcsolása"
-    Beadás után, ha nem egyből folytatod a következő házival, akkor [állítsd le az AKS-t](https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster). Ha egyáltalán nem adod be a következő házit, akkor töröld a teljes erőforráscsoportot.
+    Beadás után, ha nem egyből folytatod a következő házival, akkor [állítsd le az AKS-t](https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster). Ha egyáltalán nem adod be a következő házit, akkor törölj minden erőforráscsoportot.
