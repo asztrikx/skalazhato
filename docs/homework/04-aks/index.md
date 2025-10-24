@@ -208,10 +208,10 @@ Az útmutató negyedik része az AKS-specifikus tárhely konfigurációval fogla
 
 ### Mintaalkalmazás telepítése
 
-A hivatalos útmutató [ötödik része](https://learn.microsoft.com/en-us/azure/aks/tutorial-kubernetes-deploy-application?tabs=azure-cli) alapján telepítsük a mintaalkalmazást. Az ACR login szerver és a K8S service külső IP címe is megszerezhető az Azure portálról. Az útmutató rész végére érve **ne** töröljük a telepítést.
+A hivatalos útmutató [ötödik része](https://learn.microsoft.com/en-us/azure/aks/tutorial-kubernetes-deploy-application?tabs=azure-cli) alapján telepítsük a mintaalkalmazást. Az ACR login szerver és a k8s service külső IP címe is megszerezhető az Azure portálról. Az útmutató rész végére érve **ne** töröljük a telepítést.
 
-!!! warning "K8S erőforráskorlátok"
-    A mintaalkalmazás korábbi verziójában némely konténer [erőforráslimitje](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) nagyon alacsony volt (pl. 10 MB memória), amit igen könnyű volt átlépni és ilyenkor az ütemező folyamatosan ki-kilőtte a podot (hibaüzenet valami hasonló volt: *container init was OOM-killed (memory limit too low?)*), a ráépülő szolgáltatás nem tudott rendben működni. Az aktuális verzióban ezt már [javították](https://github.com/Azure-Samples/aks-store-demo/commit/afe11f4ca94a154f43c3b72187b8684c048e608b#diff-46a7464f533643281cbe9a01070701f8acfc30f993f74ece069958ef3e3c4767R191) a *product-service* konténer esetében. Ha hasonló hibajelenséget észleltek, akár a helyi K8S-ben, akár AKS-ben, nyugodtan állítsátok a hibát jelző konténer limitjét a YAML-ben.
+!!! warning "k8s erőforráskorlátok"
+    A mintaalkalmazás korábbi verziójában némely konténer [erőforráslimitje](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) nagyon alacsony volt (pl. 10 MB memória), amit igen könnyű volt átlépni és ilyenkor az ütemező folyamatosan ki-kilőtte a podot (hibaüzenet valami hasonló volt: *container init was OOM-killed (memory limit too low?)*), a ráépülő szolgáltatás nem tudott rendben működni. Az aktuális verzióban ezt már [javították](https://github.com/Azure-Samples/aks-store-demo/commit/afe11f4ca94a154f43c3b72187b8684c048e608b#diff-46a7464f533643281cbe9a01070701f8acfc30f993f74ece069958ef3e3c4767R191) a *product-service* konténer esetében. Ha hasonló hibajelenséget észleltek, akár a helyi k8s-ben, akár AKS-ben, nyugodtan állítsátok a hibát jelző konténer limitjét a YAML-ben.
 
 !!! example "BEADANDÓ"
     Készíts egy képernyőképet (`f1.png`) és commitold azt be a házi feladat repó gyökerébe, amin látszik:
@@ -222,7 +222,7 @@ A hivatalos útmutató [ötödik része](https://learn.microsoft.com/en-us/azure
 
 ## 2. Feladat
 
-Az _AKS store demo_ teljesebb változatát - hasonlót ahhoz, ami a K8S háziban is szerpelt, telepítsük ugyanebbe az AKS-be, egy külön [kubernetes névtérbe](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/).
+Az _AKS store demo_ teljesebb változatát - hasonlót ahhoz, ami a k8s háziban is szerpelt, telepítsük ugyanebbe az AKS-be, egy külön [kubernetes névtérbe](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/).
 
 ### 2.1 Névtér létrehozása
 
@@ -299,7 +299,7 @@ Jobb lenne egy korábban már látott Traefik proxy jellegű megoldás, ahol egy
 - az URL _hostname_ része alapján
 - az URL _port_ része alapján
 
-A K8S háziban egy _path_ alapú megoldást valósítottunk meg, de ehhez előre [fel kellett készíteni](https://vite.dev/guide/build.html#public-base-path) a webalkalmazások kódját (a kiinduló projekt már fel volt készítve). A _hostname_ alapú általában transzparensebb a webalkalmazások szempontjából, egy előre konténerizált webalkalmazást lényegében bármilyen hosztnév alatt elérhetővé tehetünk. Publikus elérés esetén ehhez publikus DNS-be való bejegyzés szükséges. Bár elérhetők ingyenes publikus DNS-be bejegyző hosztnév szolgáltatások, az extra adminisztráció miatt nem ezt a módszert választjuk. A port alapú megoldás nem annyira szép, mint a domain alapú, de esetünkben ez lesz a legmegfelelőbb: nem kell a webalkalmazások kódját módosítani, és a DNS-sel sem kell foglalkozni.
+A k8s háziban egy _path_ alapú megoldást valósítottunk meg, de ehhez előre [fel kellett készíteni](https://vite.dev/guide/build.html#public-base-path) a webalkalmazások kódját (a kiinduló projekt már fel volt készítve). A _hostname_ alapú általában transzparensebb a webalkalmazások szempontjából, egy előre konténerizált webalkalmazást lényegében bármilyen hosztnév alatt elérhetővé tehetünk. Publikus elérés esetén ehhez publikus DNS-be való bejegyzés szükséges. Bár elérhetők ingyenes publikus DNS-be bejegyző hosztnév szolgáltatások, az extra adminisztráció miatt nem ezt a módszert választjuk. A port alapú megoldás nem annyira szép, mint a domain alapú, de esetünkben ez lesz a legmegfelelőbb: nem kell a webalkalmazások kódját módosítani, és a DNS-sel sem kell foglalkozni.
 
 A Traefik proxy támogatja a port alapú routing-ot is, ezért ismét Traefik-et használunk, csak egy kicsit másként. Telepítsük a Traefik-et is az ACR-ünkből. Cél, hogy a store-front a 80-as, a store-admin a 8090-es porton legyen elérhető, illetve mindkettő ugyanazon az AKS load balancer publikus IP címen.
 
@@ -326,7 +326,7 @@ ingressRoute:
     enabled: true
 ```
 
-Ez egyrészt egy új portot definiál, ahol a Traefik-et meg lehet szólítani (a hagyományos 80-as és 443-as port mellett), másrészt elérhetővé tesszük a Traefik dashboard-ot - [legalábbis kubectl port-forward-on keresztüli elérésre](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#access-traefik-dashboard-without-exposing-it). Ellenőrizzük, hogy megjelent-e a _traefik_ nevű K8S service és rajta a 8090-es port is.
+Ez egyrészt egy új portot definiál, ahol a Traefik-et meg lehet szólítani (a hagyományos 80-as és 443-as port mellett), másrészt elérhetővé tesszük a Traefik dashboard-ot - [legalábbis kubectl port-forward-on keresztüli elérésre](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#access-traefik-dashboard-without-exposing-it). Ellenőrizzük, hogy megjelent-e a _traefik_ nevű k8s service és rajta a 8090-es port is.
 
 3. Telepítsük a Traefik-et ACR-ből. Ehhez előbb a helm-nek azonosítania kell magát az ACR felé. Ez szerencsére nem gond, ha van [Azure CLI-nk](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-helm-repos#authenticate-with-the-registry).
 
@@ -341,14 +341,14 @@ helm install traefik oci://$ACRNAME.azurecr.io/helm/traefik --version 37.2.0 --n
 
 ### 2.6 Ingress
 
-Bár a K8S ingress API hagyományosan a sztenderd HTTP portokon folyó kommunikációra lett kitalálva így [nem is fogalalkozik nem port/protokoll konfigurációval](https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress). A Traefik külön annotációkat [definiál](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/), amiket az Ingress objektummokra rakhatunk, így mégis megadhatjuk, hogy milyen portot használja. 
+Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunikációra lett kitalálva így [nem is fogalalkozik nem port/protokoll konfigurációval](https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress). A Traefik külön annotációkat [definiál](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/), amiket az Ingress objektummokra rakhatunk, így mégis megadhatjuk, hogy milyen portot használja. 
 
 !!! info "alternatív routing konfiguráció"
-    Bár ez egyszerű esetben nem egy rossz megoldás, de kissé suta. Szerencsére nem csak K8S Ingress objektumot használhatunk a routing konfigurációjára, hanem pélául a Traefik saját alternatív [IngressRoute](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/) típusát, ami sokkal egyértelműbben tárja elénk a Traefik routing lehetőségeit. Másik alternatíva a K8S Ingress utódjának szánt, jóval többet tudó Gateway API
+    Bár ez egyszerű esetben nem egy rossz megoldás, de kissé suta. Szerencsére nem csak k8s Ingress objektumot használhatunk a routing konfigurációjára, hanem pélául a Traefik saját alternatív [IngressRoute](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/) típusát, ami sokkal egyértelműbben tárja elénk a Traefik routing lehetőségeit. Másik alternatíva a k8s Ingress utódjának szánt, jóval többet tudó Gateway API
 
-1. Állítsuk az aks-store-all-in-one.yaml-ben minden K8S service típusát `ClusterIP`-re. Csak a Traefik szolgáltatás lesz kívülről elérhető (LoadBalancer típus), de az nem ebben a YAML-ben van definiálva, hanem a Traefik helm chart kezeli.
+1. Állítsuk az aks-store-all-in-one.yaml-ben minden k8s service típusát `ClusterIP`-re. Csak a Traefik szolgáltatás lesz kívülről elérhető (LoadBalancer típus), de az nem ebben a YAML-ben van definiálva, hanem a Traefik helm chart kezeli.
 
-2. Adjunk 1-1 K8S Ingress leírót a YAML fájlhoz a `store-front` és `store-admin` service-ekhez kapcsolva. Példaként itt a `web8090` portról a `store-admin` _service_ felé route-oló Ingress:
+2. Adjunk 1-1 k8s Ingress leírót a YAML fájlhoz a `store-front` és `store-admin` service-ekhez kapcsolva. Példaként itt a `web8090` portról a `store-admin` _service_ felé route-oló Ingress:
 
 ```yaml
 # Ingress to expose store-admin via Traefik entryPoint `web8090` (HTTP 8090)
@@ -375,19 +375,30 @@ spec:
 
 A másik _Ingress_ esetében a 80-as portot, azaz a ˙web˙ nevű [entrypointot](https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/) és a store-front _Service_-t kössük össze.
 
-3. Telepítsünk, alkalmazzuk a YAML leírót. Mivel a leíró nem hivatkozik K8S névtérre, ezért azt az `apply` parancsban be tudjuk állítani, így minden erőforrás a megadott névtérbe kerül.
+3. Telepítsünk, alkalmazzuk a YAML leírót. Mivel a leíró nem hivatkozik k8s névtérre, ezért azt az `apply` parancsban be tudjuk állítani, így minden erőforrás a megadott névtérbe kerül.
 
 ```bash
 kubectl apply -f aks-store-all-in-one.yaml -n fullstore-neptun
 ```
 
-4. Ellenőrizzük az Azure portálon vagy `kubectl` parancsokkal, hogy minden K8S objektum rendben elindult-e. Szerezzük be a Traefik _LoadBalancer_ típusú _Service_ publikus IP címét. Ellenőrizzük, hogy a weboldalak a tervezett portokon elérhetőek-e.
+4. Ellenőrizzük az Azure portálon vagy `kubectl` parancsokkal, hogy minden k8s objektum rendben elindult-e. Szerezzük be a Traefik _LoadBalancer_ típusú _Service_ publikus IP címét. Ellenőrizzük, hogy a weboldalak a tervezett portokon elérhetőek-e.
+
+5. Teszteld le az alkalmazást, vidd végig a k8s házi 3. feladatának beadandójához is szükséges tesztlépéseket (termék átnevezés, rendelés feladás, rendelés teljesítés).
 
 
 !!! example "BEADANDÓ"
-    Készíts egy képernyőképet (`f2.1.png`) és commitold azt be a házi feladat repó gyökerébe, ahol 
+    Készíts az alábbi tesztesetekről képernyőképeket, és commitold be a házi feladat repó gyökerébe:
+
+    - Publikus oldal        
+        - A *Proceed to checkout* gombra kattintva egy 1-10 db. közötti véletlen mennyiségű, *neptun kódosra módosított nevű* termékre vonatkozó rendelés beküldésre került (sikeres üzenet). (`f2.1.1.png`)
+    - Admin felület
+        -  A fenti rendelésen a *Complete Order* gombra kattintva az állapotmódosítás sikeres, a rendelés állapota *Completed*-re változik. (`f2.1.2.png`)        
+
+    Készíts egy másik képernyőképet (`f2.2.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol az Azure portálon látszik az AKS infrastruktúra erőforráscsoportjának (MC_ kezdetű) áttekintő nézete (*Overview*). Látszódjon a portálra belépett felhasználó azonosítója a jobb felső sarokban.
+    
+    Készíts egy másik képernyőképet (`f2.3.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol a végállapotban látszik parancssorban mindkét alkalmazás k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -o wide` és `kubectl get deployment -n fullstore-neptun -o wide`)
 
 ## 3. Feladat - talán a legfontosabb
 
 !!! danger "AKS kikapcsolása"
-    Beadás után, ha egyből folytatod a következő házival, akkor hagyd meg, egyébként állítsd le az AKS-t.
+    Beadás után, ha nem egyből folytatod a következő házival, akkor állítsd le az AKS-t.
