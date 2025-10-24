@@ -285,7 +285,7 @@ containers:
 
 1. Nézzük át a YAML fájlt, az `image:` sorokat írjuk át, hogy mindenhol a saját ACR-ünkre hivatkozzon- hasonlóan az 1-es feladathoz. Figyeljünk rá, hogy az ACR-en belüli elérési útvonal is megfelelő legyen. Az ACR Azure portálos felületén meg tudjuk nézni az egyes lemezképek teljes nevét (_Artifact reference_ vagy _Docker pull command_), ha kiválasztunk egy lemezkép verziót. A legbiztosabb, ha innen másoljuk ki.
 
-![Lemezkép elérési út](images/quotaerror.png)
+    ![Lemezkép elérési út](images/acr-container-details.png)
 
 2. Töröljük a `virtual-customer` és `virtual-worker` deployment-eket a leíróból.
 
@@ -305,38 +305,38 @@ A Traefik proxy támogatja a port alapú routing-ot is, ezért ismét Traefik-et
 
 1. Importáljuk a Traefik-et az ACR-be
 
-```bash
-az acr import --name $ACRNAME --source ghcr.io/traefik/helm/traefik:37.2.0 --image helm/traefik:37.2.0
-```
+    ```bash
+    az acr import --name $ACRNAME --source ghcr.io/traefik/helm/traefik:37.2.0 --image helm/traefik:37.2.0
+    ```
 
 2. A [telepítési beállításokat](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md) most egy fájlból adjuk meg. Készíts egy új fájlt a repo-ba traefik-values.yaml néven, az alábbi tartalommal:
 
-```yaml
-ports:
-  # Additional HTTP entry point on 8090 (for other web apps)
-  web8090:
-    port: 8090
-    expose:
-      default: true
-    exposedPort: 8090
-    protocol: TCP
+    ```yaml
+    ports:
+      # Additional HTTP entry point on 8090 (for other web apps)
+      web8090:
+        port: 8090
+        expose:
+          default: true
+        exposedPort: 8090
+        protocol: TCP
 
-ingressRoute:
-  dashboard:
-    enabled: true
-```
+    ingressRoute:
+      dashboard:
+        enabled: true
+    ```
 
-Ez egyrészt egy új portot definiál, ahol a Traefik-et meg lehet szólítani (a hagyományos 80-as és 443-as port mellett), másrészt elérhetővé tesszük a Traefik dashboard-ot - [legalábbis kubectl port-forward-on keresztüli elérésre](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#access-traefik-dashboard-without-exposing-it). Ellenőrizzük, hogy megjelent-e a _traefik_ nevű k8s service és rajta a 8090-es port is.
+    Ez egyrészt egy új portot definiál, ahol a Traefik-et meg lehet szólítani (a hagyományos 80-as és 443-as port mellett), másrészt elérhetővé tesszük a Traefik dashboard-ot - [legalábbis kubectl port-forward-on keresztüli elérésre](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#access-traefik-dashboard-without-exposing-it). Ellenőrizzük, hogy megjelent-e a _traefik_ nevű k8s service és rajta a 8090-es port is.
 
 3. Telepítsük a Traefik-et ACR-ből. Ehhez előbb a helm-nek azonosítania kell magát az ACR felé. Ez szerencsére nem gond, ha van [Azure CLI-nk](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-helm-repos#authenticate-with-the-registry).
 
-```bash
-az acr login --name $ACRNAME --expose-token --output tsv --query accessToken | helm registry login $ACRNAME.azurecr.io --username "00000000-0000-0000-0000-000000000000" --password-stdin
-helm install traefik oci://$ACRNAME.azurecr.io/helm/traefik --version 37.2.0 --namespace fullstore-neptun -f traefik-values.yaml
-```
+    ```bash
+    az acr login --name $ACRNAME --expose-token --output tsv --query accessToken | helm registry login $ACRNAME.azurecr.io --username "00000000-0000-0000-0000-000000000000"    --password-stdin
+    helm install traefik oci://$ACRNAME.azurecr.io/helm/traefik --version 37.2.0 --namespace fullstore-neptun -f traefik-values.yaml
+    ```
 
-!!! warning "kubectl context"
-    A helm a telepítési célként a kubectl aktív kontextjét használja. Ügyeljünk arra, hogy az AKS legyen az aktív kontext.
+    !!! warning "kubectl context"
+        A helm a telepítési célként a kubectl aktív kontextjét használja. Ügyeljünk arra, hogy az AKS legyen az aktív kontext.
 
 
 ### 2.6 Ingress
@@ -350,36 +350,36 @@ Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunik�
 
 2. Adjunk 1-1 k8s Ingress leírót a YAML fájlhoz a `store-front` és `store-admin` service-ekhez kapcsolva. Példaként itt a `web8090` portról a `store-admin` _service_ felé route-oló Ingress:
 
-```yaml
-# Ingress to expose store-admin via Traefik entryPoint `web8090` (HTTP 8090)
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: store-admin-ingress
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-    traefik.ingress.kubernetes.io/router.entrypoints: "web8090"
-spec:
-  ingressClassName: traefik
-  rules:
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: store-admin
-                port:
-                  number: 80
-```
+    ```yaml
+    # Ingress to expose store-admin via Traefik entryPoint `web8090` (HTTP 8090)
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: store-admin-ingress
+      annotations:
+        kubernetes.io/ingress.class: "traefik"
+        traefik.ingress.kubernetes.io/router.entrypoints: "web8090"
+    spec:
+      ingressClassName: traefik
+      rules:
+        - http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: store-admin
+                    port:
+                      number: 80
+    ```
 
-A másik _Ingress_ esetében a 80-as portot, azaz a ˙web˙ nevű [entrypointot](https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/) és a store-front _Service_-t kössük össze.
+    A másik _Ingress_ esetében a 80-as portot, azaz a ˙web˙ nevű [entrypointot](https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/) és a store-front _Service_-t kössük össze.
 
 3. Telepítsünk, alkalmazzuk a YAML leírót. Mivel a leíró nem hivatkozik k8s névtérre, ezért azt az `apply` parancsban be tudjuk állítani, így minden erőforrás a megadott névtérbe kerül.
 
-```bash
-kubectl apply -f aks-store-all-in-one.yaml -n fullstore-neptun
-```
+    ```bash
+    kubectl apply -f aks-store-all-in-one.yaml -n fullstore-neptun
+    ```
 
 4. Ellenőrizzük az Azure portálon vagy `kubectl` parancsokkal, hogy minden k8s objektum rendben elindult-e. Szerezzük be a Traefik _LoadBalancer_ típusú _Service_ publikus IP címét. Ellenőrizzük, hogy a weboldalak a tervezett portokon elérhetőek-e.
 
@@ -401,4 +401,4 @@ kubectl apply -f aks-store-all-in-one.yaml -n fullstore-neptun
 ## 3. Feladat - talán a legfontosabb
 
 !!! danger "AKS kikapcsolása"
-    Beadás után, ha nem egyből folytatod a következő házival, akkor állítsd le az AKS-t.
+    Beadás után, ha nem egyből folytatod a következő házival, akkor [állítsd le az AKS-t](https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster). Ha egyáltalán nem adod be a következő házit, akkor töröld a teljes erőforráscsoportot.
