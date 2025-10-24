@@ -218,7 +218,9 @@ A hivatalos útmutató [ötödik része](https://learn.microsoft.com/en-us/azure
 
     - a futó alkalmazás böngészőben, böngésző címsorban az alkalmazás (IP) címével
     - parancssorban a kapcsolódó k8s *service* adatai (`kubectl get service store-front`)
-    - parancssorban az alkalmazás k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -o wide`). 
+    - parancssorban az alkalmazás k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -o wide`).
+
+    Másold be az AKS Store demo repo mappájából a házi repo mappájába a végleges aks-store-quickstatrt.yaml-t.
 
 ## 2. Feladat
 
@@ -309,7 +311,7 @@ A Traefik proxy támogatja a port alapú routing-ot is, ezért ismét Traefik-et
     az acr import --name $ACRNAME --source ghcr.io/traefik/helm/traefik:37.2.0 --image helm/traefik:37.2.0
     ```
 
-2. A [telepítési beállításokat](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md) most egy fájlból adjuk meg. Készíts egy új fájlt a repo-ba traefik-values.yaml néven, az alábbi tartalommal:
+2. A [telepítési beállításokat](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md) most egy fájlból adjuk meg. Készíts egy új fájlt az AKS store demo repo mappájába traefik-values.yaml néven, az alábbi tartalommal:
 
     ```yaml
     ports:
@@ -397,6 +399,8 @@ Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunik�
     Készíts egy másik képernyőképet (`f2.2.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol az Azure portálon látszik az AKS infrastruktúra erőforráscsoportjának (MC_ kezdetű) áttekintő nézete (*Overview*). Látszódjon a portálra belépett felhasználó azonosítója a jobb felső sarokban.
     
     Készíts egy másik képernyőképet (`f2.3.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol a végállapotban látszik parancssorban mindkét alkalmazás k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -o wide` és `kubectl get deployment -n fullstore-neptun -o wide`)
+
+    Másold be az AKS Store demo repo mappájából a házi repo mappájába a végleges aks-store-all-in-one.yaml-t.
 
 ## 3. Feladat - talán a legfontosabb
 
