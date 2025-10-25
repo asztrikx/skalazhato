@@ -1,18 +1,18 @@
 # 04 - Azure Kubernetes Services
 
-*Nincs frissítve 2025. őszi félévre!*
+*Nincs frissítve a 2025. őszi félévre!*
 
 ## Cél
 
 A labor célja megismerni:
 
-- az AKS szolgáltatást és a legfontosabb kapcsolódó szolgáltatásokat (ACR) 
-- az AKS alkalmazások telepítésének különböző módszereit
-- az AKS legalapvetőbb megfigyelési funkcióit 
+ - az AKS szolgáltatást és a legfontosabb kapcsolódó szolgáltatásokat (ACR)
+ - az AKS alkalmazások telepítésének különböző módszereit
+ - az AKS legalapvetőbb megfigyelési funkcióit
 
 ## Előkövetelmények
 
-A laborleírás cross-platform eszközöket használ. A labor linuxon (kubuntu) lett kidolgozva.
+A laborleírás cross-platform eszközöket használ. A labor Linuxon (Kubuntu) lett kidolgozva.
 
 - Korábbi laborok infrastruktúrájából: `docker`, `docker compose`, `helm`
     - Windows-on is [linux konténer módban](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/set-up-linux-containers#run-your-first-linux-container) 
@@ -25,10 +25,10 @@ A laborleírás cross-platform eszközöket használ. A labor linuxon (kubuntu) 
 
 ## Előkészület
 
-A feladatok megoldása során ne felejtsd el követni a feladat beadás folyamatát [GitHub](../../information/GitHub.md).
+A feladatok megoldása során ne felejtsd el követni a feladat beadási folyamatát [GitHub](../../information/GitHub.md).
 
 !!! danger "PR név"
-    :exclamation: Beadásnál a pull request neve legyen: *hf4* :exclamation:
+    :exclamation: A beadásnál a pull request neve legyen: *hf4* :exclamation:
 
 ### Git repository létrehozása és letöltése
 
@@ -50,7 +50,7 @@ A feladatok megoldása során ne felejtsd el követni a feladat beadás folyamat
 
 3. Állítsuk a [nyelvi beállításokat](https://learn.microsoft.com/en-us/azure/azure-portal/set-preferences#language--region) (felülről a harmadik menüpont). A nyelv legyen angol, a régiós formátum legyen magyar. Az **Apply** gombbal alkalmazzuk a beállításokat.
 
-4. Visszatérve a portál beállításokhoz, nyissuk meg a [tenantjaink listáját](https://learn.microsoft.com/en-us/azure/azure-portal/set-preferences#directories--subscriptions) (felülről az első menüpont, *Dictionaries + subscriptions*). Ellenőrizzük a táblázatban, hogy a BME tenant-e az aktív (*Current*) tenantunk. Ha nem, a **Switch** gombbal váltsunk át rá.
+4. Visszatérve a portál beállításokhoz, nyissuk meg a [tenantjaink listáját](https://learn.microsoft.com/en-us/azure/azure-portal/set-preferences#directories--subscriptions) (felülről az első menüpont, *Directories + subscriptions*). Ellenőrizzük a táblázatban, hogy a BME tenant-e az aktív (*Current*) tenantunk. Ha nem, a **Switch** gombbal váltsunk át rá.
 
 ### Azure előfizetés ellenőrzése
 
@@ -116,7 +116,7 @@ Azure CLI-vel (`az acr login`) [regisztráljuk is az ACR-t a docker környezetü
 A hivatalos útmutató [második része](https://learn.microsoft.com/en-us/azure/aks/tutorial-kubernetes-prepare-acr?tabs=azure-cli) az ACR build szolgáltatását használja, amivel könnyen lehetne a fejlesztői gép erőforrásait kímélve a lemezképeket megépíteni. Az építéshez szükséges kontextust (forráskód, YAML) tölti csak fel, a kiinduló lemezkép és az építési folyamat is az ACR-en belül történik. Sajnos ez a szolgáltatás [jelenleg csak fizetős Azure előfizetésekben érhető el](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview), hallgatóiban nem. Szerencsére az első feladatrész során a lemezképek elkészültek, így [azokat feltölthetjük](https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/).
 
 !!! warning "Lemezkép architektúrák"
-    A lemezkép CPU architektúrájának [kompatibilisnak kell lennie](https://docs.docker.com/build/building/multi-platform/#why-multi-platform-builds) a docker környezet CPU architektúrájával (AKS esetén ez alapesetben: `linux/amd64`). Linuxos és Windows-os fejlesztői környezetben is általában linuxos docker környezetet használunk, így általában nem lesz ebből gondunk (`docker image incpect <lemezkép név vagy id>` paranccsal ellenőrizhetjük: az *Architecture* tulajdonságot figyeljük). Viszont például ARM64 CPU-s Mac esetében gond lehet, a fejlesztői gépen készített lemezkép AKS-en nem fog jól működni. Ilyenkor a legegyszerűbb linuxos lemezképet készíttetni az AKS számára, amit például a `DOCKER_DEFAULT_PLATFORM` [környezeti változó beállításával tehetünk meg](https://stackoverflow.com/questions/65612411/forcing-docker-to-use-linux-amd64-platform-by-default-on-macos). Az így készült lemezkép csak egy platformot támogat. Többplatformos lemezképet is [készíthetünk](https://docs.docker.com/build/building/multi-platform/#build-multi-platform-images) a *buildx* docker CLI plugin-nal, így ugyanaz a lemezkép több architektúrán is használható.
+    A lemezkép CPU architektúrájának [kompatibilisnak kell lennie](https://docs.docker.com/build/building/multi-platform/#why-multi-platform-builds) a Docker környezet CPU architektúrájával (AKS esetén ez alapesetben: `linux/amd64`). Linuxos és Windows-os fejlesztői környezetben is általában linuxos Docker környezetet használunk, így általában nem lesz ebből gondunk (`docker image inspect <lemezkép név vagy id>` paranccsal ellenőrizhetjük: az *Architecture* tulajdonságot figyeljük). Viszont például ARM64 CPU-s Mac esetében gond lehet, a fejlesztői gépen készített lemezkép AKS-en nem fog jól működni. Ilyenkor a legegyszerűbb linuxos lemezképet készíttetni az AKS számára, amit például a `DOCKER_DEFAULT_PLATFORM` [környezeti változó beállításával tehetünk meg](https://stackoverflow.com/questions/65612411/forcing-docker-to-use-linux-amd64-platform-by-default-on-macos). Az így készült lemezkép csak egy platformot támogat. Többplatformos lemezképet is [készíthetünk](https://docs.docker.com/build/building/multi-platform/#build-multi-platform-images) a *buildx* docker CLI plugin-nal, így ugyanaz a lemezkép több architektúrán is használható.
 
 1. Tag-eljük meg az alábbi három *aks-store-demo* lemezképet. Az $ACRNAME helyére helyettesítsük be az ACR-ünk nevét (*acr+neptun kód*).
 
@@ -138,7 +138,7 @@ A hivatalos útmutató [második része](https://learn.microsoft.com/en-us/azure
     Az ACR Azure portálos oldalán belül a *Metrics* menüpontban a *Storage used* nevű [metrikát](https://learn.microsoft.com/en-us/azure/container-registry/monitor-container-registry-reference#supported-metrics-for-microsoftcontainerregistryregistries) kiválasztva ellenőrizhetjük az ACR által használt tárhelyet, illetve annak időbeli változását. Másik lehetőség az *Overview* menüponton belül a *Monitoring* alfül.
 
 
-Az útmutató nem tér ki rá, de a teljesség kedvéért foglalkozzunk még egy lemezképpel. AKS-be az [aks-store-quickstatrt.yaml-t] https://github.com/Azure-Samples/aks-store-demo/blob/main/aks-store-quickstart.yaml foggjuk majd telepíteni, ami a fentieken túl a [busybox](https://hub.docker.com/_/busybox) lemezképet is használja a Docker Hub-ról. Bár technikailag az AKS be tudja szerezni ezt a lemezképet a Docker Hub-ról, ezt is tegyük elérhetővé a saját ACR-ünkben.
+Az útmutató nem tér ki rá, de a teljesség kedvéért foglalkozzunk még egy lemezképpel. AKS-be az [aks-store-quickstart.yaml](https://github.com/Azure-Samples/aks-store-demo/blob/main/aks-store-quickstart.yaml)-t fogjuk majd telepíteni, ami a fentieken túl a [busybox](https://hub.docker.com/_/busybox) lemezképet is használja a Docker Hub-ról. Bár technikailag az AKS be tudja szerezni ezt a lemezképet a Docker Hub-ról, ezt is tegyük elérhetővé a saját ACR-ünkben.
 
 !!! tip "Kitekintés - külső források"
     Nagyvállalati környezetben a külső források elérése gyakran tiltott (pl. tűzfalszabályokkal), ezen források biztonsági és egyéb szempontok miatt  alapértelmezetten megbízhatatlannak számítanak. A docker alapértelmezett forrása, a Docker Hub például  korlátozásokat (rate limiting) [vezetett be](https://medium.com/@alaa.barqawi/docker-rate-limit-with-azure-container-instance-and-aks-4449cede66dd) az AKS-es letöltésekre is. Mindezek miatt a nagyvállalti klaszterek csak belső céges repository-kat használhatnak, amiket egy dedikált csapat kezel: megfelelő ellenőrzés után emelnek be külső vagy belső fejlesztésű elemeket (artifaktokat). Emiatt fontos, hogy minden telepítési egység (pl. helm chart) paraméterezhető legyen a függőségeinek elérhetősége kapcsán.
@@ -220,7 +220,7 @@ A hivatalos útmutató [ötödik része](https://learn.microsoft.com/en-us/azure
     - parancssorban a kapcsolódó k8s *service* adatai (`kubectl get service store-front`)
     - parancssorban az alkalmazás k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -o wide`).
 
-    Másold be az AKS Store demo repo mappájából a házi repo mappájába a végleges aks-store-quickstatrt.yaml-t.
+    Másold be az AKS Store demo repo mappájából a házi repo mappájába a végleges aks-store-quickstart.yaml-t.
 
 ## 2. Feladat
 
@@ -346,7 +346,7 @@ A Traefik proxy támogatja a port alapú routing-ot is, ezért ismét Traefik-et
 Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunikációra lett kitalálva így [nem is fogalalkozik nem port/protokoll konfigurációval](https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress). A Traefik külön annotációkat [definiál](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/), amiket az Ingress objektummokra rakhatunk, így mégis megadhatjuk, hogy milyen portot használja. 
 
 !!! info "alternatív routing konfiguráció"
-    Bár ez egyszerű esetben nem egy rossz megoldás, de kissé suta. Szerencsére nem csak k8s Ingress objektumot használhatunk a routing konfigurációjára, hanem pélául a Traefik saját alternatív [IngressRoute](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/) típusát, ami sokkal egyértelműbben tárja elénk a Traefik routing lehetőségeit. Másik alternatíva a k8s Ingress utódjának szánt, jóval többet tudó Gateway API
+    Bár ez egyszerű esetben nem egy rossz megoldás, de kissé suta. Szerencsére nem csak k8s Ingress objektumot használhatunk a routing konfigurációjára, hanem például a Traefik saját alternatív [IngressRoute](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/) típusát, ami sokkal egyértelműbben tárja elénk a Traefik routing lehetőségeit. Másik alternatíva a k8s Ingress utódjának szánt, jóval többet tudó Gateway API
 
 1. Állítsuk az aks-store-all-in-one.yaml-ben minden k8s service típusát `ClusterIP`-re. Csak a Traefik szolgáltatás lesz kívülről elérhető (LoadBalancer típus), de az nem ebben a YAML-ben van definiálva, hanem a Traefik helm chart kezeli.
 
@@ -375,7 +375,7 @@ Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunik�
                       number: 80
     ```
 
-    A másik _Ingress_ esetében a 80-as portot, azaz a ˙web˙ nevű [entrypointot](https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/) és a store-front _Service_-t kössük össze.
+    A másik _Ingress_ esetében a 80-as portot, azaz a `web` nevű [entrypointot](https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/) és a store-front _Service_-t kössük össze.
 
 3. Telepítsünk, alkalmazzuk a YAML leírót. Mivel a leíró nem hivatkozik k8s névtérre, ezért azt az `apply` parancsban be tudjuk állítani, így minden erőforrás a megadott névtérbe kerül.
 
