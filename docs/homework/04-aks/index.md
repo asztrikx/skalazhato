@@ -2,11 +2,7 @@
 
 ## Cél
 
-A labor célja megismerni:
-
- - az AKS szolgáltatást és a legfontosabb kapcsolódó szolgáltatásokat (ACR)
- - az AKS alkalmazások telepítésének különböző módszereit
- - az AKS legalapvetőbb megfigyelési funkcióit
+A labor célja megismerni magát az AKS szolgáltatást és a legfontosabb kapcsolódó szolgáltatásokat (ACR), valamint az AKS alkalmazások telepítésének különböző módszereit.
 
 ## Előkövetelmények
 
@@ -147,7 +143,7 @@ A hivatalos útmutató [második része](https://learn.microsoft.com/en-us/azure
     az acr import --name $ACRNAME --source docker.io/library/busybox:latest --image busybox:latest --force --username $DOCKERHUB_USER --password "$DOCKERHUB_TOKEN"
     ```
 
-4. Másik extra lemezkép a [rabbitmq v3.13](https://mcr.microsoft.com/en-us/artifact/mar/azurelinux/base/rabbitmq-server/). Ezt is importáljuk hasonlóan, de felhasználói azonosítás nélkül (`--username`, `--password` paraméter nélkül).
+4. Másik extra lemezkép a [rabbitmq v3.13](https://mcr.microsoft.com/en-us/artifact/mar/azurelinux/base/rabbitmq-server/). Ezt is importáljuk hasonlóan, de felhasználói azonosítás nélkül (`--username`, `--password` paraméterek nélkül).
 
 5. Ellenőrizzük a feltöltött lemezképeket az Azure Portálon, az ACR [Repositories menüpontjában](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal?tabs=azure-cli#list-container-images).
 
@@ -338,10 +334,10 @@ A Traefik proxy támogatja a port alapú routing-ot is, ezért ismét Traefik-et
 
 ### 2.6 Ingress
 
-Bár a k8s _Ingress_ API hagyományosan a sztenderd HTTP portokon folyó kommunikációra lett kitalálva így [nem is fogalalkozik port/protokoll konfigurációval](https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress). A Traefik külön annotációkat [definiál](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/), amiket az Ingress objektummokra rakhatunk, így mégis megadhatjuk, hogy milyen portot használjon. 
+Bár a k8s _Ingress_ API hagyományosan a sztenderd HTTP portokon folyó kommunikációra lett kitalálva így [nem is fogalalkozik port/protokoll konfigurációval](https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress). A Traefik külön annotációkat [definiál](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/), amiket az _Ingress_ objektummokra rakhatunk, így mégis megadhatjuk, hogy milyen portot használjon. 
 
 !!! info "alternatív routing konfiguráció"
-    Bár ez egyszerű esetben nem egy rossz megoldás, de kissé suta. Szerencsére nem csak k8s _Ingress_ objektumot használhatunk a routing konfigurációjára, hanem például a Traefik saját alternatív [_IngressRoute_](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/) típusát, ami sokkal egyértelműbben tárja elénk a Traefik routing lehetőségeit. Másik alternatíva a k8s Ingress utódjának szánt, annál jóval többet tudó k8s [_Gateway_ API](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/gateway-api/)
+    Bár ez egyszerű esetben nem egy rossz megoldás, de kissé suta. Szerencsére nem csak k8s _Ingress_ objektumot használhatunk a routing konfigurációjára, hanem például a Traefik saját alternatív [_IngressRoute_](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/) típusát, ami sokkal egyértelműbben tárja elénk a Traefik routing lehetőségeit. Másik alternatíva a k8s _Ingress_ utódjának szánt, annál jóval többet tudó k8s [_Gateway_ API](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/gateway-api/)
 
 1. Állítsuk az *aks-store-all-in-one.yaml*-ben minden k8s service típusát `ClusterIP`-re. Csak a Traefik szolgáltatás lesz kívülről elérhető (_LoadBalancer_ típus), de az nem ebben a YAML-ben van definiálva, hanem a Traefik helm chart kezeli.
 
