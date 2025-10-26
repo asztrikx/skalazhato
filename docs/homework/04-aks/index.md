@@ -200,7 +200,7 @@ Az útmutató negyedik része az AKS-specifikus tárhely konfigurációval fogla
 
 A hivatalos útmutató [ötödik része](https://learn.microsoft.com/en-us/azure/aks/tutorial-kubernetes-deploy-application?tabs=azure-cli) alapján telepítsük a mintaalkalmazást. Az ACR login szerver és a k8s service külső IP címe is megszerezhető az Azure portálról. Az útmutató rész végére érve **ne** töröljük a telepítést.
 
-!!! warning "k8s erőforráskorlátok"
+!!! warning "K8s erőforráskorlátok"
     A mintaalkalmazás korábbi verziójában némely konténer [erőforráslimitje](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) nagyon alacsony volt (pl. 10 MB memória), amit igen könnyű volt átlépni és ilyenkor az ütemező folyamatosan ki-kilőtte a podot (hibaüzenet valami hasonló volt: *container init was OOM-killed (memory limit too low?)*), a ráépülő szolgáltatás nem tudott rendben működni. Az aktuális verzióban ezt már [javították](https://github.com/Azure-Samples/aks-store-demo/commit/afe11f4ca94a154f43c3b72187b8684c048e608b#diff-46a7464f533643281cbe9a01070701f8acfc30f993f74ece069958ef3e3c4767R191) a *product-service* konténer esetében. Ha hasonló hibajelenséget észleltek, akár a helyi k8s-ben, akár AKS-ben, nyugodtan állítsátok a hibát jelző konténer limitjét a YAML-ben.
 
 !!! example "BEADANDÓ"
@@ -210,7 +210,7 @@ A hivatalos útmutató [ötödik része](https://learn.microsoft.com/en-us/azure
     - parancssorban a kapcsolódó k8s *service* adatai (`kubectl get service store-front`)
     - parancssorban az alkalmazás k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -o wide`).
 
-    Commitold gitbe, a megoldás ágra a végleges aks-store-quickstart.yaml-t.
+    Commitold be a végleges aks-store-quickstart.yaml-t is.
 
 ## 2. Feladat
 
@@ -393,9 +393,9 @@ Bár a k8s _Ingress_ API hagyományosan a sztenderd HTTP portokon folyó kommuni
 
     Készíts egy másik képernyőképet (`f2.4.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol a Traefik dashboard _HTTP Routers_ listája látható (pl.: http://localhost:8080/dashboard/#/http/routers). 
 
-    Commitold gitbe, a megoldás ágra a végleges aks-store-all-in-one.yaml-t.
+    Commitold be a végleges aks-store-all-in-one.yaml-t is.
 
 ## 3. Feladat - talán a legfontosabb
 
 !!! danger "AKS kikapcsolása"
-    Beadás után, ha nem egyből folytatod a következő házival, akkor [állítsd le az AKS-t](https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster). Ha egyáltalán nem adod be a következő házit, akkor törölj minden erőforráscsoportot.
+    Beadás után, ha nem egyből folytatod a következő házival, akkor [állítsd le az AKS-t](https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster). Azure Portal-on is lehet, az AKS _Overview_ oldalán is ott a **Stop** gomb. Ha egyáltalán nem adod be a következő házit, akkor törölj minden erőforráscsoportot.
