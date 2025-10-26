@@ -1,7 +1,5 @@
 # 04 - Azure Kubernetes Services
 
-*Nincs frissítve a 2025. őszi félévre!*
-
 ## Cél
 
 A labor célja megismerni:
@@ -134,28 +132,24 @@ A hivatalos útmutató [második része](https://learn.microsoft.com/en-us/azure
     docker push $ACRNAME.azurecr.io/aks-store-demo/product-service
     ```
    
-!!! tip "ACR által használt tárhely"
-    Az ACR Azure portálos oldalán belül a *Metrics* menüpontban a *Storage used* nevű [metrikát](https://learn.microsoft.com/en-us/azure/container-registry/monitor-container-registry-reference#supported-metrics-for-microsoftcontainerregistryregistries) kiválasztva ellenőrizhetjük az ACR által használt tárhelyet, illetve annak időbeli változását. Másik lehetőség az *Overview* menüponton belül a *Monitoring* alfül.
+    !!! tip "ACR által használt tárhely"
+        Az ACR Azure portálos oldalán belül a *Metrics* menüpontban a *Storage used* nevű [metrikát](https://learn.microsoft.com/en-us/azure/container-registry/    monitor-container-registry-reference#supported-metrics-for-microsoftcontainerregistryregistries) kiválasztva ellenőrizhetjük az ACR által használt tárhelyet, illetve annak     időbeli változását. Másik lehetőség az *Overview* menüponton belül a *Monitoring* alfül.
 
 
-Az útmutató nem tér ki rá, de a teljesség kedvéért foglalkozzunk még egy lemezképpel. AKS-be az [aks-store-quickstart.yaml](https://github.com/Azure-Samples/aks-store-demo/blob/main/aks-store-quickstart.yaml)-t fogjuk majd telepíteni, ami a fentieken túl a [busybox](https://hub.docker.com/_/busybox) lemezképet is használja a Docker Hub-ról. Bár technikailag az AKS be tudja szerezni ezt a lemezképet a Docker Hub-ról, ezt is tegyük elérhetővé a saját ACR-ünkben.
+    Az útmutató nem tér ki rá, de a teljesség kedvéért foglalkozzunk még további lemezképekkel. AKS-be az [aks-store-quickstart.yaml](https://github.com/Azure-Samples/aks-store-demo/blob/main/aks-store-quickstart.yaml)-t fogjuk majd telepíteni, ami a fentieken túl a [busybox](https://hub.docker.com/_/busybox) lemezképet is használja a Docker Hub-ról. Bár technikailag az AKS be tudja szerezni ezt a lemezképet a Docker Hub-ról, ezt is tegyük elérhetővé a saját ACR-ünkben.
 
-!!! tip "Kitekintés - külső források"
-    Nagyvállalati környezetben a külső források elérése gyakran tiltott (pl. tűzfalszabályokkal), ezen források biztonsági és egyéb szempontok miatt  alapértelmezetten megbízhatatlannak számítanak. A docker alapértelmezett forrása, a Docker Hub például  korlátozásokat (rate limiting) [vezetett be](https://medium.com/@alaa.barqawi/docker-rate-limit-with-azure-container-instance-and-aks-4449cede66dd) az AKS-es letöltésekre is. Mindezek miatt a nagyvállalti klaszterek csak belső céges repository-kat használhatnak, amiket egy dedikált csapat kezel: megfelelő ellenőrzés után emelnek be külső vagy belső fejlesztésű elemeket (artifaktokat). Emiatt fontos, hogy minden telepítési egység (pl. helm chart) paraméterezhető legyen a függőségeinek elérhetősége kapcsán.
+    !!! tip "Kitekintés - külső források"
+        Nagyvállalati környezetben a külső források elérése gyakran tiltott (pl. tűzfalszabályokkal), ezen források biztonsági és egyéb szempontok miatt  alapértelmezetten     megbízhatatlannak számítanak. A docker alapértelmezett forrása, a Docker Hub például  korlátozásokat (rate limiting) [vezetett be](https://medium.com/@alaa.barqawi/    docker-rate-limit-with-azure-container-instance-and-aks-4449cede66dd) az AKS-es letöltésekre is. Mindezek miatt a nagyvállalti klaszterek csak belső céges repository-kat   használhatnak, amiket egy dedikált csapat kezel: megfelelő ellenőrzés után emelnek be külső vagy belső fejlesztésű elemeket (artifaktokat). Emiatt fontos, hogy minden    telepítési egység (pl. helm chart) paraméterezhető legyen a függőségeinek elérhetősége kapcsán.
 
 3. Az ACR képes átmemelni külső forrásból lemezképeket, ha hálózatilag eléri és a külső forrás hozzáférésszabályozásán is át tud jutni. A Docker Hub esetében ez nem túl bonyolult, csak egyetlen Azure CLI parancs ([az acr import](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-import-images?tabs=azure-cli#import-from-docker-hub)). Felhasználónévként a Docker Hub felhasználónevünket adjuk meg, jelszóként pedig a felhasználónkhoz tartozó egyik Personal Access Token-ünket.
 
     ```bash
-    az acr import \
-      --name $ACRNAME \
-      --source docker.io/library/busybox:latest \
-      --image busybox:latest \
-      --force \
-      --username $DOCKERHUB_USER \
-      --password "$DOCKERHUB_TOKEN"
+    az acr import --name $ACRNAME --source docker.io/library/busybox:latest --image busybox:latest --force --username $DOCKERHUB_USER --password "$DOCKERHUB_TOKEN"
     ```
 
-4. Ellenőrizzük a feltöltött lemezképeket az Azure Portálon, az ACR [Repositories menüpontjában](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal?tabs=azure-cli#list-container-images).
+4. Másik extra lemezkép a [rabbitmq v3.13](https://mcr.microsoft.com/en-us/artifact/mar/azurelinux/base/rabbitmq-server/). Ezt is importáljuk hasonlóan, de felhasználói azonosítás nélkül (`--username`, `--password` paraméter nélkül).
+
+5. Ellenőrizzük a feltöltött lemezképeket az Azure Portálon, az ACR [Repositories menüpontjában](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal?tabs=azure-cli#list-container-images).
 
 ### AKS létrehozása, méretezése
 
@@ -220,7 +214,7 @@ A hivatalos útmutató [ötödik része](https://learn.microsoft.com/en-us/azure
     - parancssorban a kapcsolódó k8s *service* adatai (`kubectl get service store-front`)
     - parancssorban az alkalmazás k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -o wide`).
 
-    Másold be az AKS Store demo repo mappájából a házi repo mappájába a végleges aks-store-quickstart.yaml-t.
+    Commitold gitbe, a megoldás ágra a végleges aks-store-quickstart.yaml-t.
 
 ## 2. Feladat
 
@@ -246,11 +240,11 @@ Ezekre az épített lemezképekre lesz szükségünk, töltsük föl őket ACR-b
 - makeline-service
 - store-admin
 
-A külső lemezképek közül pedig ezekre - importáljuk ezeket ACR-be:
+A külső lemezképek közül pedig ezekre - importáljuk az eddig nem importáltakat ACR-be:
 
 - busybox - ez már megvan korábbról
+- rabbitmq-server 3.13 - ez is már megvan korábbról
 - mongo 7.0 a Docker Hub-ról (docker.io/library/mongo:7.0)
-- rabbitmq-server 3.13 (mcr.microsoft.com/azurelinux/base/rabbitmq-server:3.13)
 
 ### 2.3 MongoDB 7.0
 
@@ -293,7 +287,7 @@ containers:
 
 ### 2.5 Traefik
 
-A YAML leíró ClusterIP és LoadBalancer service típusokat használ, ez utóbbi azt okozza, hogy egy publikus IP címen lesz kívülről is [elérhető](https://learn.microsoft.com/en-us/azure/aks/load-balancer-standard#use-the-public-standard-load-balancer) az adott szolgáltatás. Mivel minden szolgáltatás külön IP-t kap, így nagyon gyorsan kifuthatunk a (régiónkénti) [publikus IP cím kvótánkból](https://learn.microsoft.com/en-us/azure/quotas/networking-quota-requests).
+A YAML leíró _ClusterIP_ és _LoadBalancer_ service típusokat használ, ez utóbbi azt okozza, hogy egy publikus IP címen lesz kívülről is [elérhető](https://learn.microsoft.com/en-us/azure/aks/load-balancer-standard#use-the-public-standard-load-balancer) az adott szolgáltatás. Mivel minden szolgáltatás külön IP-t kap, így nagyon gyorsan kifuthatunk a (régiónkénti) [publikus IP cím kvótánkból](https://learn.microsoft.com/en-us/azure/quotas/networking-quota-requests).
 
 Jobb lenne egy korábban már látott Traefik proxy jellegű megoldás, ahol egy proxy / ingress kontroller lenne az egyetlen kívülről elérhető belépési pont és a proxy valamilyen címzési módszerrel (routing) különítené el a különböző webalkalmazásokat. Tipikus címzési módszerek, amik az URL különböző részei alapján irányítják a kérést:
 
@@ -328,7 +322,7 @@ A Traefik proxy támogatja a port alapú routing-ot is, ezért ismét Traefik-et
         enabled: true
     ```
 
-    Ez egyrészt egy új portot definiál, ahol a Traefik-et meg lehet szólítani (a hagyományos 80-as és 443-as port mellett), másrészt elérhetővé tesszük a Traefik dashboard-ot - [legalábbis kubectl port-forward-on keresztüli elérésre](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#access-traefik-dashboard-without-exposing-it). Ellenőrizzük, hogy megjelent-e a _traefik_ nevű k8s service és rajta a 8090-es port is.
+    Ez egyrészt egy új portot definiál, ahol a Traefik-et meg lehet szólítani (a hagyományos 80-as és 443-as port mellett), másrészt elérhetővé tesszük a Traefik dashboard-ot - [legalábbis kubectl port-forward-on keresztüli elérésre](https://github.com/traefik/traefik-helm-chart/blob/master/EXAMPLES.md#access-traefik-dashboard-without-exposing-it).
 
 3. Telepítsük a Traefik-et ACR-ből. Ehhez előbb a helm-nek azonosítania kell magát az ACR felé. Ez szerencsére nem gond, ha van [Azure CLI-nk](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-helm-repos#authenticate-with-the-registry).
 
@@ -338,19 +332,20 @@ A Traefik proxy támogatja a port alapú routing-ot is, ezért ismét Traefik-et
     ```
 
     !!! warning "kubectl context"
-        A helm a telepítési célként a kubectl aktív kontextjét használja. Ügyeljünk arra, hogy az AKS legyen az aktív kontext.
+        A helm a telepítési célként a kubectl aktív kontextjét használja. Ügyeljünk arra, hogy az AKS-ünk legyen az aktív kontext.
 
+4. Ellenőrizzük, hogy megjelent-e a _traefik_ nevű k8s service és rajta a 8090-es port is.
 
 ### 2.6 Ingress
 
-Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunikációra lett kitalálva így [nem is fogalalkozik nem port/protokoll konfigurációval](https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress). A Traefik külön annotációkat [definiál](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/), amiket az Ingress objektummokra rakhatunk, így mégis megadhatjuk, hogy milyen portot használja. 
+Bár a k8s _Ingress_ API hagyományosan a sztenderd HTTP portokon folyó kommunikációra lett kitalálva így [nem is fogalalkozik port/protokoll konfigurációval](https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress). A Traefik külön annotációkat [definiál](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/), amiket az Ingress objektummokra rakhatunk, így mégis megadhatjuk, hogy milyen portot használjon. 
 
 !!! info "alternatív routing konfiguráció"
-    Bár ez egyszerű esetben nem egy rossz megoldás, de kissé suta. Szerencsére nem csak k8s Ingress objektumot használhatunk a routing konfigurációjára, hanem például a Traefik saját alternatív [IngressRoute](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/) típusát, ami sokkal egyértelműbben tárja elénk a Traefik routing lehetőségeit. Másik alternatíva a k8s Ingress utódjának szánt, jóval többet tudó Gateway API
+    Bár ez egyszerű esetben nem egy rossz megoldás, de kissé suta. Szerencsére nem csak k8s _Ingress_ objektumot használhatunk a routing konfigurációjára, hanem például a Traefik saját alternatív [_IngressRoute_](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/http/ingressroute/) típusát, ami sokkal egyértelműbben tárja elénk a Traefik routing lehetőségeit. Másik alternatíva a k8s Ingress utódjának szánt, annál jóval többet tudó k8s [_Gateway_ API](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/gateway-api/)
 
-1. Állítsuk az aks-store-all-in-one.yaml-ben minden k8s service típusát `ClusterIP`-re. Csak a Traefik szolgáltatás lesz kívülről elérhető (LoadBalancer típus), de az nem ebben a YAML-ben van definiálva, hanem a Traefik helm chart kezeli.
+1. Állítsuk az *aks-store-all-in-one.yaml*-ben minden k8s service típusát `ClusterIP`-re. Csak a Traefik szolgáltatás lesz kívülről elérhető (_LoadBalancer_ típus), de az nem ebben a YAML-ben van definiálva, hanem a Traefik helm chart kezeli.
 
-2. Adjunk 1-1 k8s Ingress leírót a YAML fájlhoz a `store-front` és `store-admin` service-ekhez kapcsolva. Példaként itt a `web8090` portról a `store-admin` _service_ felé route-oló Ingress:
+2. Adjunk 1-1 k8s _Ingress_ leírót a YAML fájlhoz a `store-front` és `store-admin` service-ekhez kapcsolva. Példaként itt a `web8090` portról a `store-admin` _Service_ felé route-oló _Ingress_:
 
     ```yaml
     # Ingress to expose store-admin via Traefik entryPoint `web8090` (HTTP 8090)
@@ -359,10 +354,8 @@ Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunik�
     metadata:
       name: store-admin-ingress
       annotations:
-        kubernetes.io/ingress.class: "traefik"
         traefik.ingress.kubernetes.io/router.entrypoints: "web8090"
     spec:
-      ingressClassName: traefik
       rules:
         - http:
             paths:
@@ -387,6 +380,8 @@ Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunik�
 
 5. Teszteld le az alkalmazást, vidd végig a k8s házi 3. feladatának beadandójához is szükséges tesztlépéseket (termék átnevezés, rendelés feladás, rendelés teljesítés).
 
+6. A k8s háziban megismert _port forward_ módszerrel tedd elérhetővé localhost-on a Traefik dashboard-ot.
+
 
 !!! example "BEADANDÓ"
     Készíts az alábbi tesztesetekről képernyőképeket, és commitold be a házi feladat repó gyökerébe:
@@ -398,9 +393,11 @@ Bár a k8s ingress API hagyományosan a sztenderd HTTP portokon folyó kommunik�
 
     Készíts egy másik képernyőképet (`f2.2.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol az Azure portálon látszik az AKS infrastruktúra erőforráscsoportjának (MC_ kezdetű) áttekintő nézete (*Overview*). Látszódjon a portálra belépett felhasználó azonosítója a jobb felső sarokban.
     
-    Készíts egy másik képernyőképet (`f2.3.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol a végállapotban látszik parancssorban mindkét alkalmazás k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -o wide` és `kubectl get deployment -n fullstore-neptun -o wide`)
+    Készíts egy másik képernyőképet (`f2.3.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol a végállapotban látszanak parancssorban az új névtér k8s *deployment* erőforrásai a lemezképek azonosítóival együtt (`kubectl get deployment -n fullstore-neptun -o wide`)
 
-    Másold be az AKS Store demo repo mappájából a házi repo mappájába a végleges aks-store-all-in-one.yaml-t.
+    Készíts egy másik képernyőképet (`f2.4.png`) és commitold azt be ezt is a házi feladat repó gyökerébe, ahol a Traefik dashboard _HTTP Routers_ listája látható (pl.: http://localhost:8080/dashboard/#/http/routers). 
+
+    Commitold gitbe, a megoldás ágra a végleges aks-store-all-in-one.yaml-t.
 
 ## 3. Feladat - talán a legfontosabb
 
