@@ -518,7 +518,7 @@ Hozzuk létre ezeket a szabályokat, kezdjük az mikroszolgáltatásokkal.
     - Admin felület
         - Az *Orders* menüpont alatt megjelennek a beérkezett (friss) rendelések.
         - A megrendelésre kattintva megjelennek a rendelés részletei, ami tartalmazza a NEPTUN kódunkat is. (`f3.4.7.png`)
-        - A *Complete Order* gombra kattintva az állapot módosítás sikeres a rendelés állapota *Completed*-re változik. (`f3.4.8.png`)
+        - A *Complete Order* gombra kattintva az állapotmódosítás sikeres, a rendelés állapota *Completed*-re változik. (`f3.4.8.png`)
 
 ## 4. Feladat
 
