@@ -1,3 +1,7 @@
+---
+authors: kszicsillag
+---
+
 # 05 - Skálázás Azure-ban
 
 *Nincs frissítve 2025. őszi félévre!*
@@ -82,7 +86,11 @@ A k8s YAML fájlok átírásával és érvényesítésével (`kubectl apply`) á
 
 ### 2.2 Azure Load Testing
 
-Hozz létre egy Azure Load Testing erőforrást (például az [útmutatót](https://learn.microsoft.com/en-us/azure/load-testing/quickstart-create-and-run-load-test?tabs=portal#create-an-azure-load-testing-resource) követve) az alábbi beállításokkal:
+!!!info "Azure App Testing vs Azure Load Testing"
+    Az _Azure App Testing_ egy ernyő-meta-szolgáltatás, amely az _Azure Load Testing_ és a _Playwright Workspaces_ szolgáltatásokat fogja össze. Mivel technikai szinten _Azure Load Testing_ erőforrásokat hozunk létre, ezért az anyagban _Azure Load Testing_ néven hivatkozzuk a terhelésteszt szolgáltatást. A dokumentációs felületeken viszont gyakran az [_Azure App Testing_](https://learn.microsoft.com/en-us/azure/app-testing/overview-what-is-azure-app-testing) brand alá van besorolva.
+
+
+Hozz létre egy Azure Load Testing erőforrást (például az [útmutatót](https://learn.microsoft.com/en-us/azure/app-testing/load-testing/quickstart-create-and-run-load-test?tabs=portal#create-an-azure-load-testing-resource) követve) az alábbi beállításokkal:
 
 - Name: *lt* előtag + neptun kód (pl.*npt123* neptun kód esetén *ltnpt123*)
 - Resource group: az alapértelmezett Azure erőforráscsoport (lásd AKS házi)
@@ -112,7 +120,7 @@ A válasz JSON-t mindenképp mentsd el, szükség lesz az adatokra belőle. A be
 Az Azure RBAC felületek viszont nincsenek tiltva, az [útmutató](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal) alapján osszunk jogokat a technikai felhasználónak (két hozzárendelés): 
 
 1. legyen *Reader* szerepköre (role) az alapértelmezett Azure erőforráscsoporton (scope), amiben a Load Testing szolgáltatást is létrehoztuk és 
-2. legyen [*Load Test Contributor*](https://learn.microsoft.com/en-us/azure/load-testing/how-to-assign-roles#load-test-contributor) (role) a Load Testing erőforráson (scope)
+2. legyen [*Load Test Contributor*](https://learn.microsoft.com/en-us/azure/app-testing/load-testing/how-to-assign-roles#load-test-contributor) (role) a Load Testing erőforráson (scope)
 
 !!!tip
     A technikai felhasználó az alanykeresőben a sima ember felhasználókkal egy kategóriában van, nem a managed identity-k között.
@@ -127,7 +135,7 @@ dotnet add package Abstracta.JmeterDsl.Azure --version 0.8
 ```
 
 !!!tip "Abstracta.JmeterDsl"
-    Az *Abstracta.JmeterDsl* könyvtárak lehetővé teszik, hogy az Azure Load Testing tesztjeinket [JMeter](https://learn.microsoft.com/en-us/azure/load-testing/how-to-create-and-run-load-test-with-jmeter-script?tabs=portal) XML szerkesztő eszközök helyett imperatív nyelven ([Java](https://abstracta.github.io/jmeter-java-dsl/) vagy [C#](https://abstracta.github.io/jmeter-dotnet-dsl/)), fluent jellegű API-val írjuk meg egy tesztprojektben. A csomag ebből a kód alapján egyrészt generálja a szükséges JMeter artifaktokat, majd ezekkel inicializálja a teszt végrehajtó motort (esetünkben Azure Load Test), elindítja a tesztet, végül begyűjti a lefutási statisztikákat, amikre assert feltételeket fogalmazhatunk meg.
+    Az *Abstracta.JmeterDsl* könyvtárak lehetővé teszik, hogy az Azure Load Testing tesztjeinket [JMeter](https://learn.microsoft.com/en-us/azure/app-testing/load-testing/how-to-create-and-run-load-test-with-jmeter-script?tabs=portal) XML szerkesztő eszközök helyett imperatív nyelven ([Java](https://abstracta.github.io/jmeter-java-dsl/) vagy [C#](https://abstracta.github.io/jmeter-dotnet-dsl/)), fluent jellegű API-val írjuk meg egy tesztprojektben. A csomag ebből a kód alapján egyrészt generálja a szükséges JMeter artifaktokat, majd ezekkel inicializálja a teszt végrehajtó motort (esetünkben Azure Load Test), elindítja a tesztet, végül begyűjti a lefutási statisztikákat, amikre assert feltételeket fogalmazhatunk meg.
 
 !!!warning "Java"
     Az *Abstracta* könyvtár működéséhez szükséges Java futtatókörnyezet, lásd fent az *Előkövetelmények* részt.
