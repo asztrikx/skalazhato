@@ -403,5 +403,9 @@ Bár a k8s _Ingress_ API hagyományosan a sztenderd HTTP portokon folyó kommuni
 
 ## 3. Feladat - talán a legfontosabb
 
-!!! danger "AKS kikapcsolása"
-    Beadás után, ha nem egyből folytatod a következő házival, akkor [állítsd le az AKS-t](https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster). Azure Portal-on is lehet, az AKS _Overview_ oldalán is ott a **Stop** gomb. Ha egyáltalán nem adod be a következő házit, akkor törölj minden erőforráscsoportot.
+!!! danger "AKS kikapcsolása, takarítása"
+    Beadás után, ha nem egyből folytatod a következő házival, akkor [állítsd le az AKS-t](https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster). Azure Portal-on is lehet, az AKS _Overview_ oldalán is ott a **Stop** gomb.
+
+    A következő házihoz elég a `default` névtérbe telepített alkalmazás (1. feladat). Az ezt követően telepített K8S objektumok (`fulllstore-neptun` névtér) törölhetőek.
+    
+    Ha egyáltalán nem adod be a következő házit, akkor törölj minden erőforráscsoportot.

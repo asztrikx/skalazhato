@@ -66,7 +66,9 @@ Készíts saját [KQL nyelvű](https://learn.microsoft.com/en-us/kusto/query) le
 
 Skálázd a store-front deploymentet HPA-val a [hivatalos útmutatót](https://learn.microsoft.com/en-us/azure/aks/tutorial-kubernetes-scale?tabs=azure-cli#autoscale-pods) követve. Várd meg amíg a hatás látszik a lekérdezés eredményében.
 
-Az útmutató szerint a replikaszámnak vissza kellene állnia háromra, de ez az AKS-be választott VM CPU erősségétől függően nem biztos, hogy bekövetkezik. A podok terhelését a HPA az igényelt CPU-hoz viszonyítja (0,5 CPU az igényelt és 0,5 CPU-t használ = 100% terhelés). Ha rossz az igényelt CPU érték beállítás, akkor nem a várt viselkedést kaphatjuk. Ellenőrizd [a store-front által igényelt CPU-t](https://github.com/Azure-Samples/aks-store-demo/blob/abc38d094c09d421f6bb6ec6b900651992a7da14/aks-store-quickstart.yaml#L249) és ha szükséges, módosítsd, hogy bejövő kérés hiányában a minimum értékre álljon vissza.
+Az útmutató szerint a replikaszámnak vissza kellene állnia háromra, de ez az AKS-be választott VM CPU erősségétől függően nem biztos, hogy bekövetkezik. A podok terhelését a HPA az igényelt CPU-hoz viszonyítja (0,5 CPU az igényelt és 0,5 CPU-t használ = 100% terhelés). Ha rossz az igényelt CPU érték beállítás, akkor nem a várt viselkedést kaphatjuk. Egyik ilyen anomália, ha a podok már alapállapotban, terhelés nélkül több (vagy annyi) erőforrást fogyasztanak, mint a skálázási határérték. Ilyenkor hiába jönnek létre új podok, már tényleges munkavégzés nélkül túlterheltnek számítanak.
+
+Ellenőrizd [a store-front által igényelt CPU-t](https://github.com/Azure-Samples/aks-store-demo/blob/abc38d094c09d421f6bb6ec6b900651992a7da14/aks-store-quickstart.yaml#L249) és ha szükséges, módosítsd, hogy bejövő kérés hiányában a minimum értékre álljon vissza.
 
 !!! tip "HPA monitorozása"
     Egyszerűen monitorozhatjuk a HPA tevékenységét a `kubectl describe hpa $hpa_name` [paranccsal](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-horizontalpodautoscaler-in-kubectl).
@@ -128,7 +130,7 @@ Lépjünk be a klónozott kiinduló repó *azloadtest* könyvtárába, majd hozz
 
 ```bash
 dotnet new nunit
-dotnet add package Abstracta.JmeterDsl.Azure --version 0.6
+dotnet add package Abstracta.JmeterDsl.Azure --version 0.8
 ```
 
 !!!tip "Abstracta.JmeterDsl"
@@ -182,7 +184,7 @@ dotnet test -e AZURE_CREDS="00000000-0000-0000-0000-000000000000:00000000-0000-0
 A tesztnek automatikusan létre kell jönnie az Azure Load Testing szolgáltatáson belül és el kell indulnia. A lefutást kövesd az Azure portálon: Load Testing erőforrás *Tests* menüpontja, ott a teszt, majd azon belül tesztlefutás (*Test runs* rész).
 
 !!! example "BEADANDÓ"
-    Készíts egy képernyőképet az Azure portálról (`f2.1.png`) és commitold azt be a házi feladat repó gyökerébe, amin látszik a replikaszámos vonalgrafikon (Chart Type: Line) és a HPA hatása, ahogy a terhelésteszt miatt megnöveli, majd visszacsökkenti a replikaszámot a minimum értékre. A kép jobb felső sarkában látszódjon a belépett felhasználó, a bal felső sarka környékén az AKS neve. Ha a hatás nem elég látványos, növeld a terhelést a `ThreadGroup` `threads` és `iterations` paramétereivel.
+    Készíts egy képernyőképet az Azure portálról (`f2.1.png`) és commitold azt be a házi feladat repó gyökerébe, amin látszik a replikaszámos vonalgrafikon (Chart Type: Line) és a HPA hatása, ahogy a terhelésteszt miatt **megnöveli**, majd **visszacsökkenti** a replikaszámot a minimum értékre. A kép jobb felső sarkában látszódjon a belépett felhasználó, a bal felső sarka környékén az AKS neve. Ha a hatás nem elég látványos, növeld a terhelést a `ThreadGroup` `threads` és `iterations` paramétereivel.
 
     Készíts egy képernyőképet (`f2.2.png`) és commitold azt be a házi feladat repó gyökerébe, amin `kubectl describe hpa` paranccsal szemlélteted a HPA skálázási eseményeit.
 
