@@ -4,11 +4,11 @@
 
 ## Cél
 
-A labor célja megismerni az AKS skálázási módjait, illetve Azure Load Testing szolgáltatással tesztelni is az automatikus skálázás működését.
+A labor célja, hogy megismerjük az AKS skálázási módjait, illetve az Azure Load Testing szolgáltatással teszteljük az automatikus skálázás működését.
 
 ## Előkövetelmények
 
-A laborleírás cross-platform eszközöket használ. A labor linuxon (kubuntu v24.04) lett kidolgozva.
+A laborleírás cross-platform eszközöket használ, és Linuxon (Kubuntu v24.04) lett kidolgozva.
 
 - Azure [hallgatói előfizetés](https://azure.microsoft.com/en-us/free/students)
 - Azure [kubelogin és kubectl](https://azure.github.io/kubelogin/install.html)
@@ -20,17 +20,10 @@ A laborleírás cross-platform eszközöket használ. A labor linuxon (kubuntu v
 
 ## Előkészület
 
-A feladatok megoldása során ne felejtsd el követni a feladat beadás folyamatát [GitHub](../../information/GitHub.md).
+A feladatok megoldása során ne felejtsd el követni a feladat beadás [folyamatát](../../information/GitHub.md).
 
 !!! danger "PR név"
     :exclamation: Beadásnál a pull request neve legyen: *hf5* :exclamation:
-
-### Git repository létrehozása és letöltése
-
-1. Moodle-ben keresd meg a laborhoz tartozó meghívó URL-jét és annak segítségével hozd létre a saját repository-dat.
-2. Várd meg, míg elkészül a repository, majd checkout-old ki.
-3. Hozz létre egy új ágat `megoldas` néven, és ezen az ágon dolgozz.
-4. A `neptun.txt` fájlba írd bele a Neptun kódodat. A fájlban semmi más ne szerepeljen, csak egyetlen sorban a Neptun kód 6 karaktere.
 
 !!! danger "NEPTUN"
     :exclamation: A feladatokban a `neptun` kifejezés helyett a saját neptunkódunkat helyettesítsük be minden esetben :exclamation:
@@ -39,7 +32,7 @@ A feladatok megoldása során ne felejtsd el követni a feladat beadás folyamat
 
 ### AKS workload telepítése
 
-Ha megvan az alkalmazásokkal feltöltött AKS, az AKS háziból, akkor nincs teendő. Egyébként az **AKS házi 1. feladata alapján** hozz létre és telepítsd a  mintaalkalmazást egy saját AKS-be.
+Ha fut egy működő _store-front_ webalkalmazás az AKS háziból az AKS-edben, akkor nincs teendő. Egyébként az **AKS házi 1. feladata alapján** hozz létre és telepítsd a  mintaalkalmazást.
 
 ## 1. Feladat
 
@@ -181,7 +174,7 @@ dotnet test -e AZURE_CREDS="00000000-0000-0000-0000-000000000000:00000000-0000-0
 !!!danger "Titok vs. git"
     Az AZURE_CREDS értékét ne égesd be a kódba, ne kerüljön be git-be!
 
-A tesztnek automatikusan létre kell jönnie az Azure Load Testing szolgáltatáson belül és el kell indulnia. A lefutást kövesd az Azure portálon: Load Testing erőforrás *Tests* menüpontja, ott a teszt, majd azon belül tesztlefutás (*Test runs* rész).
+A tesztnek automatikusan létre kell jönnie az Azure Load Testing szolgáltatáson belül, és el kell indulnia. A lefutást kövesd az Azure portálon: Load Testing erőforrás *Tests* menüpontja, ott a teszt, majd azon belül tesztlefutás (*Test runs* rész).
 
 !!! example "BEADANDÓ"
     Készíts egy képernyőképet az Azure portálról (`f2.1.png`) és commitold azt be a házi feladat repó gyökerébe, amin látszik a replikaszámos vonalgrafikon (Chart Type: Line) és a HPA hatása, ahogy a terhelésteszt miatt **megnöveli**, majd **visszacsökkenti** a replikaszámot a minimum értékre. A kép jobb felső sarkában látszódjon a belépett felhasználó, a bal felső sarka környékén az AKS neve. Ha a hatás nem elég látványos, növeld a terhelést a `ThreadGroup` `threads` és `iterations` paramétereivel.
@@ -196,4 +189,4 @@ A tesztnek automatikusan létre kell jönnie az Azure Load Testing szolgáltatá
 ## 3. Feladat - talán a legfontosabb
 
 !!! danger "Erőforrások törlése"
-    Beadás után törölj minden erőforráscsoportot az előfizetéseden belül. (Kivéve esetleg ami nem a kisházikhoz kellett.) A technikai felhasználót is érdemes [törölni](https://learn.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest#az-ad-sp-delete) Entra-ból, ne hagyjunk "szemetet" magunk után.
+    Beadás után törölj minden erőforráscsoportot az előfizetéseden belül (kivéve azt, amelyik nem a kisházikhoz kellett). A technikai felhasználót is érdemes [törölni](https://learn.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest#az-ad-sp-delete) Entra-ból, ne hagyjunk "szemetet" magunk után.

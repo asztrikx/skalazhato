@@ -30,13 +30,6 @@ A feladatok megoldása során ne felejtsd el követni a feladat beadási folyama
 !!! danger "PR név"
     :exclamation: A beadásnál a pull request neve legyen: *hf4* :exclamation:
 
-### Git repository létrehozása és letöltése
-
-1. Moodle-ben keresd meg a laborhoz tartozó meghívó URL-jét és annak segítségével hozd létre a saját repository-dat.
-2. Várd meg, míg elkészül a repository, majd checkout-old ki.
-3. Hozz létre egy új ágat `megoldas` néven, és ezen az ágon dolgozz.
-4. A `neptun.txt` fájlba írd bele a Neptun kódodat. A fájlban semmi más ne szerepeljen, csak egyetlen sorban a Neptun kód 6 karaktere.
-
 !!! danger "NEPTUN"
     :exclamation: A feladatokban a `neptun` kifejezés helyett a saját neptunkódunkat helyettesítsük be minden esetben :exclamation:
 
