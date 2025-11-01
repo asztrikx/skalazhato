@@ -248,7 +248,7 @@ Térjünk át a fogadó oldalra.
 !!! example "BEADANDÓ"
     A feladathoz tartozó forráskódot commitold be és készíts egy `f2.1.png`-t, amiben látszik a .NET Aspire dashboardon a _Structured_ fülön a küldő és fogadó oldali logbejegyzések.
 
-    Illetve készíts egy `f2.2.png`-t, amiben látszik a Trace fülön az üzenetküldés és fogadás.
+    Illetve készíts egy `f2.2.png`-t, amiben látszik a Trace fülön a megrendelés végponthoz tartozó Trace vízesés nézetében az üzenetküldés és fogadás is.
 
 ??? note "Kitekintés"
 
