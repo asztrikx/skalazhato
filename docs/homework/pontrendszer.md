@@ -260,9 +260,6 @@ További szabályok:
 
 - **{ACAMON}** ACA [monitorozása OpenTelemetry agent-tel](https://learn.microsoft.com/en-us/azure/container-apps/opentelemetry-agents?tabs=arm). Naplók és elosztott nyomkövetési adatok gyűjtése és megjelenítése Azure Monitor-ban (App Insights): **10 pont**
 
-    !!! warning "Előzetes verzió"
-        Az ACA OpenTelemetry Agent még csak előzetes verziós.
-
     !!! danger 
         Platformonként csak egy OpenTelemetry integrációs módszerért (vagy agent alapú vagy közvetlen) jár pont.
 
