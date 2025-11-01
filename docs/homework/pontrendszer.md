@@ -144,7 +144,7 @@ További szabályok:
 
 - **{DDD}** DDD tervezési elvek demonstrálása Event Storming alapú üzleti folyamattervezéssel. A pontot extra ábra(k) elkészítésével szükséges demonstrálni, amin az Event Storming során megtervezett folyamat kerül dokumentálásra. A védésen bemutatni szükséges a tervek hatását az architektúrára, implementációra: **5 pont**
 
-- **{ACTOR}** Actor minta alkalmazása legalább egy állapottal rendelkező szolgáltatás esetében magas szintű keretrendszerek segítéségével pl.: Microsoft Orleans, AKKA.NET: **15 pont**
+- **{ACTOR}** Actor minta alkalmazása legalább egy állapottal rendelkező szolgáltatás esetében magas szintű keretrendszerek segítéségével pl.: Akka, Microsoft Orleans, AKKA.NET: **15 pont**
 
 - **{CACHE}** Saját telepítésű (pl. Redis konténer) használata kifejezetten cache-elésre legalább egy művelet esetén: **5** pont
 
@@ -202,10 +202,10 @@ További szabályok:
 
 - **{OPDB2}** Legalább kétfajta on-premise adatbázis használata. Két eltérő technológiájú adatbázis használata perzisztenciára. Memória adatbázis, cache adatbázis (Redis) nem számít be: **10** pont
 
-- **{OPACR}** Konténerek vagy helm chart(ok) letöltése on-premise klaszterbe saját Azure Container Registry-ből: **5-10** pont
+- **{OPEXTCR}** Konténerek vagy helm chart(ok) letöltése on-premise klaszterbe külső container registry-ből, authentikációval: **7-10** pont
 
-    - anonim eléréssel: **5** pont
-    - autentikációval pl. image pull secret-tel: **10** pont
+    - Azure Container Registry autentikációval pl. image pull secret-tel: **10** pont
+    - Egyéb container registry autentikációval pl. image pull secret-tel: **7** pont
 
 - **{OPARC}** On-premise Kubernetes bekötése Azure Arc-ba: **5-15** pont
     - A szolgáltatás bekötése **5 pont**
