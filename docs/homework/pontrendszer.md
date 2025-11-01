@@ -63,7 +63,7 @@ A tárgy által oktatott, preferált architektúrák felhős költségei tipikus
 
 Ha mégis ezeket választanád, néhány tipp:
 
-- Érdemes olyan platformokat választani, ahol könnyű elérni a 0 terhelés = kb. 0 költség állapotot. Az AKS-sel ezt nehéz, ACA és Azure Functions esetében könnyebb
+- Érdemes olyan platformokat választani, ahol könnyű elérni a 0 terhelés = kb. 0 költség állapotot. ACA és Azure Functions esetében könnyebb, AKS-nél figyelni kell, hogy használaton kívül leálljon a klaszter.
 - Figyeld a költségeket, de vedd figyelembe, hogy az elszámolás laggolhat (később jelentkeznek a költségek)
 - Legnagyobb költség okozók: adatbázisok, futó virtuális gépek és node pool-ok, nagy mennyiségű adat mozgatása régiók között
 - Próbáld egyszerűsíteni a felhős részt, két független telepítés esetén nem kell, hogy minden nem-üzleti funkció (pl. authentikáció) ugyanolyan komplex legyen a két telepítésben (lásd a pontrendszerben a két-független-platformos jogcímet)
@@ -211,7 +211,7 @@ További szabályok:
     - A szolgáltatás bekötése **5 pont**
     - A szolgáltatás on-premise [Azure Function engine](https://learn.microsoft.com/en-us/azure/app-service/overview-arc-integration)-en fut (**preview!**) **+10** pont
 
-- **{OPSTR}** Tartós tár, pl. lokális mappa csatolása klaszterbe. **5** pont
+- **{OPSTR}** Tartós tár, pl. lokális mappa csatolása klaszterbe. **3** pont
 
 - **{GW}** Saját telepítésű (API/App) gateway használata. Kivéve self-hosted Azure API Management. **5-10** pont
 
