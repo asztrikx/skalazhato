@@ -223,7 +223,7 @@ További szabályok:
 
 ### Azure alapon futó rendszerekhez
 
-- **{AZDB2}** Legalább kétfajta Azure-os adatbázisplatform használata (Azure SQL, Azure Database for PostgreSQL - Flexible Server, CosmosDB). Két eltérő technológiájú adatbázis használata perzisztenciára. Memória adatbázis, cache adatbázis (Azure Redis) nem számít be, egyéb NoSQL igen: **10** pont
+- **{AZDB2}** Legalább kétfajta Azure-os adatbázisplatform használata (Azure SQL, Azure Database for PostgreSQL - Flexible Server, CosmosDB, Azure Table Storage). Két eltérő technológiájú adatbázis használata perzisztenciára. Memória adatbázis, cache adatbázis (Azure Redis) nem számít be, egyéb NoSQL igen: **10** pont
 
     !!! tip
         30 napig ingyenes (többször is aktiválható!) [Cosmos DB](https://cosmos.azure.com/try/)
@@ -242,7 +242,7 @@ További szabályok:
 
 - **{AZKVAU}** Titkok lekérése saját *Azure Key Vault*-ból passwordless hozzáféréssel (pl. managed identity, workload identity): **3** pont
 
-- **{AZMSG}** A mikroszolgáltatások közötti kommunikáció kiszervezése valamely [Azure üzenetkezelő szolgáltatásba](https://learn.microsoft.com/en-us/azure/service-bus-messaging/compare-messaging-services#comparison-of-services) (pl. Service Bus) managed identity alapú hozzáféréssel: **5** pont
+- **{AZMSG}** A mikroszolgáltatások közötti kommunikáció kiszervezése valamely [Azure üzenetkezelő szolgáltatásba](https://learn.microsoft.com/en-us/azure/service-bus-messaging/compare-messaging-services#comparison-of-services) (pl. Service Bus, de [Azure Storage Queue](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted?source=recommendations) is elfogadott) managed identity alapú hozzáféréssel.: **5** pont
 
 - **{AZACA}** *Azure Container Apps* skálázása szabály alapján: **5** pont
 
@@ -277,6 +277,8 @@ További szabályok:
 - **{AZCS}** [*Azure Chaos Studio*](https://learn.microsoft.com/en-us/azure/chaos-studio/) használata káosz teszt futtatására: **7** pont
 
 - **{AZSTR}** Tartós tár, például Azure Disk, Azure Files csatolása AKS, ACA klaszterbe vagy [Azure Function-be](https://learn.microsoft.com/en-us/azure/azure-functions/storage-considerations?tabs=azure-cli#mount-file-shares): **5** pont
+
+- **{AZBLOB}** Azure Storage Blob integrálása [managed identity használatával](https://learn.microsoft.com/en-us/azure/storage/blobs/authorize-access-azure-active-directory)  **5** pont
 
 - **{AZFDF}** [*Durable Functions*](https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview) használata mikroszolgáltatások orkesztrációjára Azure Functions platformon: **5** pont
 
