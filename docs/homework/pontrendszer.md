@@ -198,10 +198,10 @@ További szabályok:
     - egyszerű REST-jellegű webes API, SDK használat nélkül, egyszerű API-kulcsalapú autentikáció **5** pont
     - SDK-val / REST API-val, iparilag elfogadott, elterjedt autentikációs protokollt (pl. OIDC) végrehajtva **7** pont
 
-- **{INOUTPROC}** Konfigurálható, hogy az adott mikroszolgáltatás külön szolgáltatásként (külön processz / pod) települjön-e, vagy a hívóval együtt egy processzbe (in-process); a hívás a konfigurációnak megfelelően vagy szolgáltatáshívás vagy közvetlen (függvény)hívás. Bemutatáskor példát kell mutatni mindkét esetre. **10** pont
+- **{INOUTPROC}** Konfigurálható, hogy az adott mikroszolgáltatás külön szolgáltatásként (külön processz / pod) települjön-e, vagy a hívóval együtt egy folyamatba (in-process); a hívás a konfigurációnak megfelelően vagy szolgáltatáshívás vagy közvetlen (függvény)hívás. Bemutatáskor példát kell mutatni mindkét esetre. **10** pont
 
     !!! tip
-        Ha ugyanezt futási időben is szeretnénk, azaz, hogy a szolgáltatások közötti kommunikáció dinamikusan változhasson lokális és távoli jellegű hívás között, akkor érdemes az _aktor_ modell alapú megoldások felé elmozdulni. A legtöbb _aktor_ modell implementáció biztosítja az ilyesfejta transzparenciát a futási hely tekintetében. Lásd még az aktor mintás jogcímet.
+        Ha ugyanezt futási időben is szeretnénk, azaz, hogy a szolgáltatások közötti kommunikáció dinamikusan változhasson lokális és távoli jellegű hívás között, akkor érdemes az _aktor_ modell alapú megoldások felé elmozdulni. A legtöbb _aktor_ modell implementáció biztosítja az ilyesfajta transzparenciát a futási hely tekintetében. Lásd még az aktor mintás jogcímet.
 
 
 ### On-premise futó rendszerekhez
