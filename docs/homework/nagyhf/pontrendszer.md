@@ -13,7 +13,7 @@ A házi feladat otthon, önállóan elkészítendő mikroszolgáltatás-architek
 A nagy házi feladat két részből áll:
 
 1. a rendszer követelmény specifikációjának elkészítése és az architektúrájának megtervezése a szorgalmi időszakban. [Példa specifikáció és architektúraábra](sample-spec.md).
-2. a rendszer implementálása, amit szóban is meg kell védeni a laborvezetőnél előre egyeztetett időpontban a vizsgaidőszakban.
+2. a rendszer implementálása, amit szóban is meg kell védeni az utolsó vizsgáig.
 
 ## Minimum elvárások
 
