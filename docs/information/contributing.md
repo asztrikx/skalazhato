@@ -19,7 +19,7 @@ Korábban közzétett, az adott félévre még nem frissített anyagokban (*Ninc
 
     Persze a pont nélkül az 1-1 betűs elgépeléseket is szívesen fogadjuk, ami bemelegítésnek is tökéletes.
 
-    A pontos pontértékért lásd a [pontrendszert](../homework/pontrendszer.md).
+    A pontos pontértékért lásd a [pontrendszert](../homework/nagyhf/pontrendszer.md).
 
 ## Hibák jelzése
 

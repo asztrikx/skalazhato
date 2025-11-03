@@ -2,7 +2,7 @@
 authors: kszicsillag,tibitoth
 ---
 
-# Pontrendszer
+# Nagy házi feladat
 
 *Nincs véglegesítve 2025. őszi félévre*
 
@@ -10,11 +10,18 @@ authors: kszicsillag,tibitoth
 
 A házi feladat otthon, önállóan elkészítendő mikroszolgáltatás-architektúrára épülő és konténertechnológiát használó szoftverrendszer elkészítése és működőképes állapotban való bemutatása.
 
+A nagy házi feladat két részből áll:
+
+1. a rendszer követelmény specifikációjának elkészítése és az architektúrájának megtervezése a szorgalmi időszakban. [Példa specifikáció és architektúraábra](sample-spec.md).
+2. a rendszer implementálása, amit szóban is meg kell védeni a laborvezetőnél előre egyeztetett időpontban a vizsgaidőszakban.
+
 ## Minimum elvárások
 
-- a rendszer kifelé egy jól körülhatárolható funkcióhalmazzal rendelkező (pl. könyvtári nyilvántartás) egységes szolgáltatást (backend) valósít meg,
-- de belül több részre (mikroszolgáltatás) van darabolva. A mikroszolgáltatások külön-külön API-val rendelkeznek, amelyek hálózaton keresztül (pl. más mikroszolgáltatásokból) hívhatók.
-- a szolgáltatás minden része valamely orkesztrációs vagy serverless platformon fut. Választható platformok: 
+- a rendszer kifelé egy jól körülhatárolható funkcióhalmazzal rendelkező (pl. könyvtári nyilvántartás) egységes szolgáltatást (backend) valósít meg.
+    - **Specifikációban felsorolás szerűen meg kell határozni a szolgáltatás funkcióit** (pl. könyvek hozzáadása, kölcsönzés, visszavitel, felhasználók kezelése)
+- az architektúra több komponensre (mikroszolgáltatás) van darabolva. A mikroszolgáltatások külön-külön API-val rendelkeznek, amelyek hálózaton keresztül (pl. más mikroszolgáltatásokból szinkron vagy aszinkron, API GW-en keresztül kliensekből) hívhatók.
+    - **Specifikációnan meg kell határozni a mikroszolgáltatásokat/komponenseket rövid magyarázattal, illetve azok technológiáit. Az architektúraábrán fel kell tüntetni a komponensek közötti főbb kapcsolatokat is.**
+- a szolgáltatás minden része valamely orkesztrációs vagy serverless platformon fut. Választható platformok:
 
     - saját gépen futó (on-premise) Kubernetes (K8S)
     - saját gépen futó (on-premise) docker compose
@@ -27,19 +34,21 @@ A házi feladat otthon, önállóan elkészítendő mikroszolgáltatás-architek
 
 !!! tip
     Külső (pl. Microsoft-os) demók, mintaalkalmazások (elemei) felhasználhatók, de ezt külön jelezni kell bemutatáskor. A nem jelzett, de átvett részletek plágiumnak számítanak. A demókból összefércelt egymáshoz nem kapcsolódó funkciókupacokat nem díjazzuk.
-    
+
 !!! tip
     Az órai demókban vagy mintaalkalmazásban megvalósított funkciók átvételéért pont nem adható, de azok tovább átdolgozhatók saját implementációnak.
 
 ### Kötelező leadandók
 
-A házi feladatot a Moodle-ben publikált GitHub Classroom meghívóval generált repository-ban szükséges beadni a kis házi feladatokhoz hasonlóan. Viszont szóban is meg kell védeni a laborvezetőnél előre egyeztetett időpontban a vizsgaidőszakban.
+A házi feladatot a Moodle-ben publikált GitHub Classroom meghívóval generált repository-ban szükséges beadni. Mind a két mérföldkő (spec, implementáció) leadása azonos repositoryban történik két külön Pull Request formájában.
 
 A beadott repository struktúrája:
 
 - `src` mappa: forráskód (saját)
-- `architecture.png`: "dokumentáció" leadása a házi feladattal együtt, min. egy darab architektúraábrából ([példa](https://learn.microsoft.com/en-us/samples/azure-samples/serverless-microservices-reference-architecture/serverless-microservices-reference-architecture/)) áll. Az ábrán látszanak a mikroszolgáltatások és a köztük lévő kapcsolatok.
-    - Ha több platformra is elkészül a házi, akkor annyi architektúraábrát kell készíteni.
+- `README.md`: specifikáció és esetleg egyéb dokumentáció markdown formátumban
+- `architecture.png`: specifikáció részeként elkészített architektúraábra PNG formátumban. Az ábrának tartalmaznia kell a mikroszolgáltatásokat, azok főbb kapcsolatait, valamint az alkalmazott technológiákat.
+    - Az implementáció végén aktualizálni kell az ábrát! Ha több platformra is elkészül a házi, akkor annyi architektúraábrát kell készíteni.
+    - Példa ábra [itt](sample-spec.md) vagy [itt](https://learn.microsoft.com/en-us/samples/azure-samples/serverless-microservices-reference-architecture/serverless-microservices-reference-architecture/)
 - `points.csv`: [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) a megszerzendő jogcímekről, a pontszámukról és azok összegéről. Elég a jogcímek rövidített neve. Példa:
 
     ```
@@ -48,7 +57,7 @@ A beadott repository struktúrája:
     ...
     Sum;82
     ```
-    
+
 - `azure-learn.csv`: Opcionális: Ha [Azure tananyagot dolgoztál fel](./mslearning.md), [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) az elvégzett képzési tervekről és a hosszukról **percben**. A végén külön sorban összegezd a perceket. Példa:
 
     ```
@@ -68,11 +77,9 @@ Ha mégis ezeket választanád, néhány tipp:
 - Legnagyobb költségokozók: adatbázisok, futó virtuális gépek és node pool-ok, nagy mennyiségű adat mozgatása régiók között
 - Próbáld egyszerűsíteni a felhős részt, két független telepítés esetén nem kell, hogy minden nem-üzleti funkció (pl. autentikáció) ugyanolyan komplex legyen a két telepítésben (lásd a pontrendszerben a két-független-platformos jogcímet)
 
-
 !!! tip "Ajánlott viszont"
     - saját gépen futó (on-premise) K8S architektúra kiegészítése egy-egy Azure szolgáltatással, pl. konténerek letöltése Azure Container Registry-ből
     - IaC eszközökkel (pl. terraform) egy-egy parancssori paranccsal lebontani, majd szükség esetén visszaépíteni az architektúra költséges részeit
-
 
 !!! danger "FAGYVESZÉLY!"
     Ha a hallgatói előfizetésen a kredit elfogy, az előfizetés befagyasztásra kerül. Vannak erőforrástípusok, amelyeknél a leállítás csökkenti vagy megszünteti a költséget (pl. virtuális gép), ugyanakkor vannak, amelyeket nem lehet költségspórolás miatt "kikapcsolni" (tipikusan a tárolást végző erőforrások, adatbázisok). A kredit elfogyása megakadályozhatja az Azure-os pontok megszerzését!
@@ -154,7 +161,7 @@ További szabályok:
 
     - ad-hoc build saját gépről feltöltött context alapján: **7** pont
     - build valamilyen triggerre (pl. commit egy adott git ágra): **12** pont
-      
+
     !!! warning
         Jelenleg hallgatói előfizetéssel nem szerezhető meg, mert a szükséges szolgáltatás ilyen típusú előfizetéseken nem vehető igénybe.
 
@@ -169,10 +176,10 @@ További szabályok:
 - **{AKV2K8S}** AKS titkok leképezése K8S Secret objektumokba vagy podok környezeti változóira [akv2k8s könyvtárral](https://akv2k8s.io/) vagy [Azure Key Vault provider for Secrets Store CSI Driver-rel](https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-driver) (AKVSSCSID) **5-7** pont
     - alapműködés: AKV -> K8S Secret (akv2k8s), AKV -> secret volume (AKVSSCSID): **5** pont
     - extra funkciók kihasználása: AKV -> környezeti változó (akv2k8s), AKV -> K8S Secret (AKVSSCSID): **7** pont
-     
+
 - **{OT}** OpenTelemetry alkalmazása különféle célokra: strukturált naplózásra, metrikák monitorozására, elosztott nyomkövetésre. [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) komponens és valamilyen aggregátor felület használata kötelező a klaszteren belül (pl. Jaeger, Grafana, Azure Monitor), amin védéskor a naplókat, metrikákat, elosztott nyomkövetést be kell tudni mutatni: **5-15** pont
 
-    - egyfajta célra **5** pont 
+    - egyfajta célra **5** pont
     - kétfajta célra **7** pont
     - mindhárom célra **10** pont
     - [exportálás *Azure Monitor-ba*](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/exporter/azuremonitorexporter/README.md) **+5** pont
@@ -188,7 +195,7 @@ További szabályok:
 
 - **{CICD}** CI/CD folyamat implementálása valamely elterjedt DevOps eszközre építve (GitHub Actions, Azure DevOps). Git push-ra a backend új verziója elkészül és kitelepül: **10-15** pont
 
-    - egy platformra telepít: **10** pont 
+    - egy platformra telepít: **10** pont
     - két platformra telepít **15** pont
 
 - **{CHAOS}** Chaos engineering eszköz alkalmazása (pl. [chaos mesh](https://chaos-mesh.org/docs/)). Védésen szemléltetés káosz teszt futtatással: **7** pont
@@ -201,8 +208,7 @@ További szabályok:
 - **{INOUTPROC}** Konfigurálható, hogy az adott mikroszolgáltatás külön szolgáltatásként (külön processz / pod) települjön-e, vagy a hívóval együtt egy folyamatba (in-process); a hívás a konfigurációnak megfelelően vagy szolgáltatáshívás vagy közvetlen (függvény)hívás. Bemutatáskor példát kell mutatni mindkét esetre. **10** pont
 
     !!! tip
-        Ha ugyanezt futási időben is szeretnénk, azaz, hogy a szolgáltatások közötti kommunikáció dinamikusan változhasson lokális és távoli jellegű hívás között, akkor érdemes az _aktor_ modell alapú megoldások felé elmozdulni. A legtöbb _aktor_ modell implementáció biztosítja az ilyesfajta transzparenciát a futási hely tekintetében. Lásd még az aktor mintás jogcímet.
-
+        Ha ugyanezt futási időben is szeretnénk, azaz, hogy a szolgáltatások közötti kommunikáció dinamikusan változhasson lokális és távoli jellegű hívás között, akkor érdemes az *aktor* modell alapú megoldások felé elmozdulni. A legtöbb *aktor* modell implementáció biztosítja az ilyesfajta transzparenciát a futási hely tekintetében. Lásd még az aktor mintás jogcímet.
 
 ### On-premise futó rendszerekhez
 
@@ -258,7 +264,7 @@ További szabályok:
     - strukturált naplók és metrikák gyűjtése: **5** pont
     - alkalmazásszintű OpenTelemetry telemetriák küldése közvetlenül (agent nélkül) Azure Monitor-ba az Azure Monitor OpenTelemetry disztribúcióval: **+5** pont
 
-- **{OTAZURE}** AKS/ACA/AZF platformon futó alkalmazásból alkalmazásszintű OpenTelemetry telemetriák küldése közvetlenül (agent nélkül) Azure Monitor-ba [Azure Monitor OpenTelemetry disztribúcióval](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable): **10** pont 
+- **{OTAZURE}** AKS/ACA/AZF platformon futó alkalmazásból alkalmazásszintű OpenTelemetry telemetriák küldése közvetlenül (agent nélkül) Azure Monitor-ba [Azure Monitor OpenTelemetry disztribúcióval](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable): **10** pont
 
 - **{AKSMON}** AKS monitorozása, különféle telemetriatípusok (strukturált naplók, metrikák, elosztott nyomkövetés) gyűjtése és megjelenítése Azure Monitor szolgáltatásban [Azure Monitor agent-tel](https://learn.microsoft.com/en-us/azure/azure-monitor/containers/kubernetes-monitoring-enable?tabs=cli)  **3-5** pont
     - strukturált naplók vagy metrikák gyűjtése: **3** pont
@@ -266,7 +272,7 @@ További szabályok:
 
 - **{ACAMON}** ACA [monitorozása OpenTelemetry agent-tel](https://learn.microsoft.com/en-us/azure/container-apps/opentelemetry-agents?tabs=arm). Naplók és elosztott nyomkövetési adatok gyűjtése és megjelenítése Azure Monitor-ban (App Insights): **10 pont**
 
-    !!! danger 
+    !!! danger
         Platformonként csak egy OpenTelemetry integrációs módszerért (vagy agent alapú vagy közvetlen) jár pont.
 
   - **{AZFMON}** AZF [monitorozása beépített OpenTelemetry integrációval](https://learn.microsoft.com/en-us/azure/azure-functions/opentelemetry-howto). Naplók és elosztott nyomkövetési adatok gyűjtése és megjelenítése Azure Monitor-ban (App Insights): **10 pont**
@@ -276,7 +282,7 @@ További szabályok:
 
     !!! danger
         Platformonként csak egy OpenTelemetry integrációs módszerért (vagy beépített vagy közvetlen) jár pont.
-    
+
 - **{AZCS}** [*Azure Chaos Studio*](https://learn.microsoft.com/en-us/azure/chaos-studio/) használata káoszteszt futtatására: **7** pont
 
 - **{AZSTR}** Tartós tár, például Azure Disk, Azure Files csatolása AKS-, ACA-klaszterbe vagy [Azure Function-be](https://learn.microsoft.com/en-us/azure/azure-functions/storage-considerations?tabs=azure-cli#mount-file-shares): **5** pont
