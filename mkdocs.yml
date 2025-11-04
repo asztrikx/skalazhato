@@ -111,5 +111,6 @@ nav:
       - homework/05-azurescale/index.md
       - homework/06-serverless/index.md
   - "Nagyházi":      
-      - homework/pontrendszer.md
-      - homework/mslearning.md
+      - homework/nagyhf/pontrendszer.md
+      - homework/nagyhf/sample-spec.md
+      - homework/nagyhf/mslearning.md
