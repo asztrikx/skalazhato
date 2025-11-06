@@ -19,9 +19,10 @@ A labor célja:
 A labor Windows platformon lett kidolgozva, de Linuxon is hasonlóan működik.
 
 - Kubernetes, lehetőleg saját gépen futtatva
-    - bármilyen eltejedt vagy [CNCF minősített K8S](https://www.cncf.io/training/certification/software-conformance/)
-    - [Docker Desktop Kubernetes](https://docs.docker.com/desktop/features/kubernetes/)
-    - vagy [minikube](https://minikube.sigs.k8s.io/docs/)
+    - bármilyen eltejedt vagy [CNCF minősített K8S](https://www.cncf.io/training/certification/software-conformance/) pl.:
+        - [Docker Desktop Kubernetes](https://docs.docker.com/desktop/features/kubernetes/)
+        - [minikube](https://minikube.sigs.k8s.io/docs/)
+    - a házi leírása Docker Desktoppal készült Windows-on, de a házi elvégezhető saját felelősségre bármilyen más rendszeren és eszközzel is.
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
     - A binárisa legyen elérhető PATH-on.
 - Egy kubernetes-t menedzselni képes GUI, például:
